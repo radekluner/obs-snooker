@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Snooker Scoreboard Overlay</title>
+  <link rel="stylesheet" href="/overlay.css" />
+</head>
+<body>
+  <div class="broadcast-bug">
+    <div class="match-title" id="match-title"></div>
+    <div class="scoreboard">
+      <div class="name-plate name-left" id="player1-plate">
+        <img class="flag" id="player1-flag" alt="" hidden />
+        <span class="player-name" id="player1-name">Player 1</span>
+        <span class="break-chip" id="player1-break" hidden>BREAK <b>0</b></span>
+        <span class="break-balls" id="player1-balls" hidden></span>
+      </div>
+      <span class="turn-indicator turn-right" id="player1-turn" aria-hidden="true"></span>
+      <div class="score-box" id="player1-frame-score">0</div>
+      <div class="frames-center">
+        <span id="player1-frames">0</span>
+        <span class="frames-divider" aria-hidden="true">&ndash;</span>
+        <span id="player2-frames">0</span>
+      </div>
+      <div class="score-box" id="player2-frame-score">0</div>
+      <span class="turn-indicator turn-left" id="player2-turn" aria-hidden="true"></span>
+      <div class="name-plate name-right" id="player2-plate">
+        <span class="break-balls" id="player2-balls" hidden></span>
+        <span class="break-chip" id="player2-break" hidden>BREAK <b>0</b></span>
+        <span class="player-name" id="player2-name">Player 2</span>
+        <img class="flag" id="player2-flag" alt="" hidden />
+      </div>
+    </div>
+    <div class="race-label" id="race-label"></div>
+  </div>
+  <script src="/overlay.js"></script>
+</body>
+</html>

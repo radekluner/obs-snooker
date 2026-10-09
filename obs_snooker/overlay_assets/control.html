@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Snooker Scoreboard Control</title>
+  <link rel="stylesheet" href="/control.css" />
+</head>
+<body>
+  <!--
+    This page is meant to be added as its own OBS Browser Source (separate
+    from the broadcast "/overlay" one) and clicked through OBS's built-in
+    "Interact" mode (right-click the source -> Interact), as an alternative
+    to this script's own Scripts-panel properties dialog or OBS Hotkeys.
+    It is not meant to be shown to viewers - keep that source hidden/muted
+    in the actual broadcast scene, or put it on its own unused scene.
+  -->
+  <div class="control-panel">
+    <div class="match-title" id="match-title"></div>
+
+    <div class="players">
+      <section class="player-column" data-player="1">
+        <h2 class="player-name" id="player1-name">Player 1</h2>
+        <div class="live-score">
+          <span class="frame-score" id="player1-frame-score">0</span>
+        </div>
+        <div class="break-box" id="player1-break">
+          <div class="break-top">
+            <span class="break-label">BREAK</span>
+            <span class="break-value" id="player1-break-value">0</span>
+          </div>
+          <span class="break-balls" id="player1-balls"></span>
+        </div>
+
+        <div class="ball-buttons" data-player="1">
+          <button data-action="pot_ball" data-ball="red">Red +1</button>
+          <button data-action="pot_ball" data-ball="yellow">Yellow +2</button>
+          <button data-action="pot_ball" data-ball="green">Green +3</button>
+          <button data-action="pot_ball" data-ball="brown">Brown +4</button>
+          <button data-action="pot_ball" data-ball="blue">Blue +5</button>
+          <button data-action="pot_ball" data-ball="pink">Pink +6</button>
+          <button data-action="pot_ball" data-ball="black">Black +7</button>
+        </div>
+
+        <div class="row-buttons">
+          <button class="secondary" data-action="undo_ball">Undo last ball</button>
+          <button class="primary" data-action="win_frame">Wins frame</button>
+        </div>
+      </section>
+
+      <section class="shared-controls">
+        <button data-action="switch_turn">Switch turn<small>adds break to score</small></button>
+        <button data-action="reset_frame_scores">Reset frame score</button>
+        <span class="turn-indicator" id="turn-indicator">-</span>
+        <div class="club-logo"><img src="/logo.svg" alt="Snooker Club Rozmarýn Brno" /></div>
+      </section>
+
+      <section class="player-column" data-player="2">
+        <h2 class="player-name" id="player2-name">Player 2</h2>
+        <div class="live-score">
+          <span class="frame-score" id="player2-frame-score">0</span>
+        </div>
+        <div class="break-box" id="player2-break">
+          <div class="break-top">
+            <span class="break-label">BREAK</span>
+            <span class="break-value" id="player2-break-value">0</span>
+          </div>
+          <span class="break-balls" id="player2-balls"></span>
+        </div>
+
+        <div class="ball-buttons" data-player="2">
+          <button data-action="pot_ball" data-ball="red">Red +1</button>
+          <button data-action="pot_ball" data-ball="yellow">Yellow +2</button>
+          <button data-action="pot_ball" data-ball="green">Green +3</button>
+          <button data-action="pot_ball" data-ball="brown">Brown +4</button>
+          <button data-action="pot_ball" data-ball="blue">Blue +5</button>
+          <button data-action="pot_ball" data-ball="pink">Pink +6</button>
+          <button data-action="pot_ball" data-ball="black">Black +7</button>
+        </div>
+
+        <div class="row-buttons">
+          <button class="secondary" data-action="undo_ball">Undo last ball</button>
+          <button class="primary" data-action="win_frame">Wins frame</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+  <script src="/control.js"></script>
+</body>
+</html>

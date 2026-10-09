@@ -1,0 +1,368 @@
+/*
+ * Control panel for the snooker scoreboard - viewed in any browser or via
+ * OBS's Browser Source "Interact" mode, not broadcast to viewers. Large
+ * touch-friendly buttons, styled like the Tk scoreboard window: club palette
+ * (navy, green, lime, blue), vertical gradients, bevelled "3D" buttons that
+ * sink when pressed, and extruded text-shadow digits.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: linear-gradient(180deg, #1d2f9e 0%, #060b36 100%) fixed;
+  color: #ffffff;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.control-panel {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.match-title {
+  text-align: center;
+  color: #020939;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  min-height: 1.2em;
+  background: linear-gradient(180deg, #ffffff 0%, #d5dcee 100%);
+  border-bottom: 5px solid #0396c4;
+  border-radius: 6px;
+  text-shadow: 0 1px 0 #ffffff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+
+.match-title:empty {
+  display: none;
+}
+
+.players {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 6px;
+  gap: 16px;
+}
+
+.player-column {
+  flex: 1 1 0;
+  background: linear-gradient(180deg, #2a47bd 0%, #11206d 100%);
+  border: 2px solid #4c68dc;
+  border-top-color: #7d95ee;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+.player-column {
+  position: relative;
+  margin-top: 30px;
+  opacity: 0.6;
+  filter: saturate(0.6);
+  transform: scale(0.97);
+}
+
+/* Banner above each column; only visible for the player at the table. */
+.player-column::before {
+  content: "ON THE TABLE";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 100%;
+  padding: 5px 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: transparent;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+}
+
+.player-column.active {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.02);
+  z-index: 1;
+  background: linear-gradient(180deg, #3a5ae0 0%, #1a2f95 100%);
+  border-color: #97bf26;
+  border-width: 3px;
+  box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.55), 0 0 36px rgba(151, 191, 38, 0.75),
+    0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: table-glow 1.8s ease-in-out infinite;
+}
+
+.player-column.active::before {
+  color: #0b2a05;
+  background: linear-gradient(180deg, #c6e65a 0%, #7fa01c 100%);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 -3px 10px rgba(151, 191, 38, 0.5);
+}
+
+@keyframes table-glow {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.55), 0 0 36px rgba(151, 191, 38, 0.75), 0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.3), 0 0 18px rgba(151, 191, 38, 0.4), 0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+}
+
+.player-name {
+  margin: 0 0 10px;
+  font-size: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 #0a1148, 2px 2px 0 #0a1148, 3px 3px 0 #0a1148, 4px 5px 6px rgba(0, 0, 0, 0.6);
+}
+
+.live-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, #12a85a 0%, #007a3a 50%, #006a31 50%, #003a1d 100%);
+  border: 2px solid #02281a;
+  border-top-color: #6be0a0;
+  border-radius: 6px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.45);
+}
+
+.frame-score {
+  font-size: 52px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #012413, 2px 2px 0 #012413, 3px 3px 0 #012413, 4px 4px 0 #012413,
+    5px 6px 8px rgba(0, 0, 0, 0.7);
+}
+
+/* Pending break of the player at the table; it is added to their frame
+   score when the turn is switched. */
+.break-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, #1a2b86 0%, #0a1348 100%);
+  border: 1px solid #4c68dc;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.break-top {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.break-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #b4c0f0;
+}
+
+.break-value {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #97bf26;
+  text-shadow: 1px 1px 0 #26340a, 2px 2px 0 #26340a, 3px 4px 5px rgba(0, 0, 0, 0.6);
+}
+
+.ball-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* Base 3D button: a gradient face with a lighter top edge, and a solid
+   darker "side" drawn with box-shadow that collapses when pressed. */
+button {
+  --face-top: #3b57cc;
+  --face-bottom: #26399a;
+  --side: #0f1a66;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--face-top) 0%, var(--face-bottom) 100%);
+  color: #ffffff;
+  padding: 12px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: 0 5px 0 var(--side), 0 8px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(0);
+  transition: transform 0.06s ease-out, box-shadow 0.06s ease-out, filter 0.1s;
+}
+
+button:hover {
+  filter: brightness(1.12);
+}
+
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--side), 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.ball-buttons button {
+  padding: 16px 6px;
+  font-size: 16px;
+}
+
+/* Tint each ball button roughly like the real ball color, as a quick
+   visual cue (not meant to be exact snooker-ball colors). */
+.ball-buttons button[data-ball="red"] { --face-top: #e03a3a; --face-bottom: #8f1414; --side: #4a0808; }
+.ball-buttons button[data-ball="yellow"] { --face-top: #f0d43a; --face-bottom: #a58a10; --side: #584806; color: #1d1700; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4); }
+.ball-buttons button[data-ball="green"] { --face-top: #2fb457; --face-bottom: #0f6a2c; --side: #063a16; }
+.ball-buttons button[data-ball="brown"] { --face-top: #a8683a; --face-bottom: #5a3114; --side: #2e1708; }
+.ball-buttons button[data-ball="blue"] { --face-top: #3f82e8; --face-bottom: #1a3f94; --side: #0b1f52; }
+.ball-buttons button[data-ball="pink"] { --face-top: #f07ab8; --face-bottom: #a02a70; --side: #561038; }
+.ball-buttons button[data-ball="black"] { --face-top: #4a4a52; --face-bottom: #121216; --side: #000000; }
+
+.row-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+button.primary {
+  --face-top: #c6e65a;
+  --face-bottom: #7fa01c;
+  --side: #3f5209;
+  flex: 2;
+  color: #0b2a05;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+button.secondary {
+  --face-top: #4c68dc;
+  --face-bottom: #2a3ca8;
+  --side: #0f1a66;
+  flex: 1;
+}
+
+.shared-controls {
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding-top: 0;
+  align-self: stretch;
+}
+
+.shared-controls button {
+  width: 100%;
+  --face-top: #14b8e8;
+  --face-bottom: #0377a0;
+  --side: #02435a;
+}
+
+.turn-indicator {
+  text-align: center;
+  margin-top: 8px;
+  padding: 8px 6px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #1a2b86 0%, #0a1348 100%);
+  border: 1px solid #4c68dc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+  font-weight: 700;
+  color: #97bf26;
+}
+
+.status {
+  margin-top: 16px;
+  text-align: center;
+  min-height: 1.2em;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.status.error {
+  color: #ff8f8f;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.8) brightness(0.7);
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--side), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+button:disabled:hover,
+button:disabled:active {
+  filter: grayscale(0.8) brightness(0.7);
+  transform: translateY(3px);
+}
+
+button small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.club-logo {
+  width: 100%;
+  margin-top: auto;
+  padding: 6px 8px;
+  background: linear-gradient(180deg, #ffffff 0%, #d5dcee 100%);
+  border-bottom: 4px solid #0396c4;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+}
+
+.club-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.break-balls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 22px;
+  gap: 8px;
+  align-items: center;
+}
+
+.ball-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 700;
+}
+
+.ball-count em {
+  font-style: normal;
+  font-size: 15px;
+}
+
+.ball {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.45), inset 2px 2px 3px rgba(255, 255, 255, 0.55), 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.ball.red { background: #d91f1f; }
+.ball.yellow { background: #f2d21b; }
+.ball.green { background: #1f9a44; }
+.ball.brown { background: #8a5226; }
+.ball.blue { background: #2f6fe0; }
+.ball.pink { background: #f27ab8; }
+.ball.black { background: #1a1a1a; }

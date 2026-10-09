@@ -1,0 +1,254 @@
+{
+  "players": [
+    {
+      "id": "2f0136eb",
+      "name": "Aleš Herout",
+      "country": "CZE"
+    },
+    {
+      "id": "792fe641",
+      "name": "Rostyslav Bovonenko",
+      "country": "CZE"
+    },
+    {
+      "id": "ff3d9cc8",
+      "name": "Michal Číž",
+      "country": "CZE"
+    },
+    {
+      "id": "047f79b5",
+      "name": "Jan Matějíček",
+      "country": "CZE"
+    },
+    {
+      "id": "5d40169d",
+      "name": "Richard Stroughair",
+      "country": "CZE"
+    },
+    {
+      "id": "9096247b",
+      "name": "Heath Williams",
+      "country": "CZE"
+    },
+    {
+      "id": "ce025a8d",
+      "name": "Jean Marie Hustin",
+      "country": "CZE"
+    },
+    {
+      "id": "362ca9ba",
+      "name": "Daniel Milý",
+      "country": "CZE"
+    },
+    {
+      "id": "657df456",
+      "name": "Radim Šimečka",
+      "country": "CZE"
+    },
+    {
+      "id": "3e3025b3",
+      "name": "Jiří Stehlík",
+      "country": "CZE"
+    },
+    {
+      "id": "9d2c11fd",
+      "name": "Mykhailo Kusen Diadora",
+      "country": "CZE"
+    },
+    {
+      "id": "d44b6532",
+      "name": "Pavel Bartoněk",
+      "country": "CZE"
+    },
+    {
+      "id": "7fdaffd6",
+      "name": "Jiří Blažek",
+      "country": "CZE"
+    },
+    {
+      "id": "fb7d65c8",
+      "name": "Rajesh Naidu",
+      "country": "CZE"
+    },
+    {
+      "id": "35ed5f81",
+      "name": "Tomáš Bejček",
+      "country": "CZE"
+    },
+    {
+      "id": "025fd971",
+      "name": "Andrej Rusiňák",
+      "country": "CZE"
+    },
+    {
+      "id": "aaa73c69",
+      "name": "Matěj Matoška",
+      "country": "CZE"
+    },
+    {
+      "id": "972486ba",
+      "name": "Jan Pištěk",
+      "country": "CZE"
+    },
+    {
+      "id": "e63e645b",
+      "name": "Šimon Šenkyřík",
+      "country": "CZE"
+    },
+    {
+      "id": "e5d51242",
+      "name": "Radovan Mrázek",
+      "country": "CZE"
+    },
+    {
+      "id": "ae2721a6",
+      "name": "Radek Luner",
+      "country": "CZE"
+    },
+    {
+      "id": "e9765270",
+      "name": "Tomáš Siman",
+      "country": "CZE"
+    },
+    {
+      "id": "248d44bd",
+      "name": "Ján Chren",
+      "country": "CZE"
+    },
+    {
+      "id": "5c09af91",
+      "name": "Ildar Sharipov",
+      "country": "CZE"
+    },
+    {
+      "id": "8d6fbfa7",
+      "name": "Ondřej Šiška",
+      "country": "CZE"
+    },
+    {
+      "id": "5d6610be",
+      "name": "Boris Augustin",
+      "country": "CZE"
+    },
+    {
+      "id": "506c123f",
+      "name": "Pavel Vachalec",
+      "country": "CZE"
+    },
+    {
+      "id": "387a6734",
+      "name": "Miroslav Svoboda",
+      "country": "CZE"
+    },
+    {
+      "id": "73614ff4",
+      "name": "Ondřej Kubálek",
+      "country": "CZE"
+    },
+    {
+      "id": "e957faeb",
+      "name": "František Smekal",
+      "country": "CZE"
+    },
+    {
+      "id": "ddb456a7",
+      "name": "Radka Pišťková",
+      "country": "CZE"
+    },
+    {
+      "id": "d8d30c30",
+      "name": "Petr Žák",
+      "country": "CZE"
+    },
+    {
+      "id": "c1eff128",
+      "name": "Jakub Klimánek",
+      "country": "CZE"
+    },
+    {
+      "id": "365e3385",
+      "name": "Tomáš Svoboda",
+      "country": "CZE"
+    },
+    {
+      "id": "f2de78b3",
+      "name": "Jaroslav Horní",
+      "country": "CZE"
+    },
+    {
+      "id": "30f6cd43",
+      "name": "Jiří Švorc",
+      "country": "CZE"
+    },
+    {
+      "id": "8cd2d10b",
+      "name": "Pavel Jílek",
+      "country": "CZE"
+    },
+    {
+      "id": "47039caa",
+      "name": "Filip Urbánek",
+      "country": "CZE"
+    },
+    {
+      "id": "ad246119",
+      "name": "Jindřich Prchal",
+      "country": "CZE"
+    },
+    {
+      "id": "c96e07f9",
+      "name": "David Kudělka",
+      "country": "CZE"
+    },
+    {
+      "id": "bc6c0b70",
+      "name": "Karel Polák",
+      "country": "CZE"
+    },
+    {
+      "id": "c793e168",
+      "name": "Alexej Taf",
+      "country": "CZE"
+    },
+    {
+      "id": "fe950d2f",
+      "name": "Michal Brzica",
+      "country": "CZE"
+    },
+    {
+      "id": "efaaf156",
+      "name": "Qu Rao",
+      "country": "CZE"
+    },
+    {
+      "id": "94f4a58a",
+      "name": "Jan Jedounek",
+      "country": "CZE"
+    },
+    {
+      "id": "303039c5",
+      "name": "Robert Ries",
+      "country": "CZE"
+    },
+    {
+      "id": "053ecc75",
+      "name": "Yevhen Kaznacheiev",
+      "country": "CZE"
+    },
+    {
+      "id": "b20a86c3",
+      "name": "Pavel Mach",
+      "country": "CZE"
+    },
+    {
+      "id": "a054d118",
+      "name": "Aamir Husain",
+      "country": "CZE"
+    },
+    {
+      "id": "24df59f6",
+      "name": "Jan Jakub Šimon",
+      "country": "CZE"
+    }
+  ]
+}

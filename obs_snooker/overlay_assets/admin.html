@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Snooker Scoreboard Admin</title>
+  <link rel="stylesheet" href="/control.css" />
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+  <div class="control-panel admin">
+    <div class="match-title">Admin</div>
+
+    <section class="card">
+      <h2>Match setup</h2>
+      <div class="form-grid">
+        <label>Player 1
+          <select id="player1-id"></select>
+        </label>
+        <label>Player 1 custom name
+          <input id="player1-name" type="text" autocomplete="off" />
+        </label>
+        <label>Player 2
+          <select id="player2-id"></select>
+        </label>
+        <label>Player 2 custom name
+          <input id="player2-name" type="text" autocomplete="off" />
+        </label>
+        <label>Match title
+          <input id="match-title-input" type="text" autocomplete="off" placeholder="e.g. World Championship - Final" />
+        </label>
+        <label>Frames to win (race to)
+          <input id="frames-to-win" type="number" min="1" max="35" />
+        </label>
+      </div>
+      <p class="hint">The custom name is used only when "(custom name below)" is selected as the player.</p>
+      <button class="primary" id="apply-match">Apply match setup</button>
+    </section>
+
+    <section class="card">
+      <h2>Manual score correction</h2>
+      <div class="form-grid correction">
+        <div class="correction-head"></div>
+        <div class="correction-head" id="corr-name1">Player 1</div>
+        <div class="correction-head" id="corr-name2">Player 2</div>
+
+        <div class="correction-label">Frame score</div>
+        <div class="correction-cell"><input id="score1" type="number" min="0" max="147" /><button data-set="set_frame_score" data-player="1" data-input="score1">Set</button></div>
+        <div class="correction-cell"><input id="score2" type="number" min="0" max="147" /><button data-set="set_frame_score" data-player="2" data-input="score2">Set</button></div>
+
+        <div class="correction-label">Frames won</div>
+        <div class="correction-cell"><input id="frames1" type="number" min="0" max="35" /><button data-set="set_frames" data-player="1" data-input="frames1">Set</button></div>
+        <div class="correction-cell"><input id="frames2" type="number" min="0" max="35" /><button data-set="set_frames" data-player="2" data-input="frames2">Set</button></div>
+
+        <div class="correction-label">Current break</div>
+        <div class="correction-cell"><input id="break" type="number" min="0" max="147" /><button data-set="set_break" data-input="break">Set</button></div>
+        <div class="correction-cell hint" id="break-owner"></div>
+      </div>
+      <div class="row-buttons actions">
+        <button data-reset="reset_frame_scores">Reset frame score (re-rack)</button>
+        <button class="danger" data-reset="reset_match" data-confirm="Reset the whole match (frames, scores, turn)?">Reset whole match</button>
+      </div>
+    </section>
+
+    <section class="card" id="foul-card" hidden>
+      <h2>Foul &amp; miss control</h2>
+      <div class="form-grid">
+        <label>Camera source
+          <select id="foul-source"></select>
+        </label>
+        <label>Overlay opacity (%)
+          <input id="foul-opacity" type="number" min="0" max="100" step="5" />
+        </label>
+      </div>
+      <button id="foul-save">Save settings</button>
+      <div class="row-buttons actions">
+        <button class="primary" data-foul="foul_reference">1. Take reference screenshot</button>
+        <button class="primary" data-foul="foul_compare">2. Compare (current over reference)</button>
+        <button data-foul="foul_hide">3. Hide, back to scoreboard</button>
+      </div>
+      <p class="hint" id="foul-state"></p>
+      <p class="hint">Button 1 only stores the picture. Button 2 shows the comparison in the scoreboard window; press it again for a fresh current screenshot.</p>
+    </section>
+
+    <details class="card collapsible" id="players-card">
+      <summary><h2>Players <span class="count" id="players-count"></span></h2></summary>
+      <div class="roster-scroll">
+      <table class="roster">
+        <thead><tr><th>Name</th><th>Country</th><th></th></tr></thead>
+        <tbody id="roster-body"></tbody>
+      </table>
+      </div>
+      <div class="form-grid add-player">
+        <label>New player name
+          <input id="new-player-name" type="text" autocomplete="off" />
+        </label>
+        <label>Country code
+          <input id="new-player-country" type="text" list="flag-list" maxlength="3" placeholder="CZE" autocomplete="off" />
+        </label>
+      </div>
+      <datalist id="flag-list"></datalist>
+      <button class="primary" id="add-player">Add player</button>
+    </details>
+
+    <p class="hint footer">
+      <a href="/control">Control panel</a> &middot; <a href="/overlay">Overlay</a><br />
+      Text source, ports, Python interpreter, hotkeys and the freeze overlay can only be set inside OBS.
+    </p>
+    <div class="status" id="status"></div>
+  </div>
+  <script src="/admin.js"></script>
+</body>
+</html>

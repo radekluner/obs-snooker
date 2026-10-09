@@ -1,0 +1,218 @@
+/* Admin page: reuses the 3D look of control.css (palette, bevelled buttons). */
+
+.admin .match-title {
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.card {
+  margin-bottom: 18px;
+  padding: 14px 18px 18px;
+  background: linear-gradient(180deg, #2a47bd 0%, #11206d 100%);
+  border: 2px solid #4c68dc;
+  border-top-color: #7d95ee;
+  border-radius: 10px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 #0a1148, 2px 2px 0 #0a1148, 3px 3px 5px rgba(0, 0, 0, 0.6);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px 16px;
+  margin-bottom: 14px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #b4c0f0;
+}
+
+input,
+select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: #ffffff;
+  background: linear-gradient(180deg, #0a1348 0%, #121f6c 100%);
+  border: 1px solid #4c68dc;
+  border-bottom-color: #7d95ee;
+  border-radius: 6px;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+  font-family: inherit;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #97bf26;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(151, 191, 38, 0.6);
+}
+
+.hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 12px;
+}
+
+.hint a {
+  color: #97bf26;
+}
+
+.footer {
+  text-align: center;
+}
+
+.correction {
+  grid-template-columns: 110px 1fr 1fr;
+  align-items: center;
+}
+
+.correction-head {
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.correction-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #b4c0f0;
+}
+
+.correction-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.correction-cell button {
+  padding: 9px 14px;
+}
+
+.actions {
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  flex: 1;
+}
+
+button.danger {
+  --face-top: #e03a3a;
+  --face-bottom: #8f1414;
+  --side: #4a0808;
+}
+
+.roster {
+  width: 100%;
+  margin-bottom: 14px;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.roster th {
+  text-align: left;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #b4c0f0;
+}
+
+.roster td {
+  padding: 0 6px 0 0;
+}
+
+.roster td.country {
+  width: 110px;
+}
+
+.roster td.row-actions {
+  width: 170px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.roster button {
+  padding: 8px 12px;
+  margin-left: 6px;
+}
+
+@media (max-width: 640px) {
+  .correction {
+    grid-template-columns: 1fr;
+  }
+}
+
+.collapsible > summary {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.collapsible > summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible > summary h2 {
+  flex: 1;
+  margin: 0;
+}
+
+.collapsible > summary::after {
+  content: "\25BC";
+  font-size: 14px;
+  color: #97bf26;
+  transition: transform 0.2s;
+}
+
+.collapsible:not([open]) > summary::after {
+  transform: rotate(-90deg);
+}
+
+.collapsible[open] > summary {
+  margin-bottom: 12px;
+}
+
+.count {
+  font-size: 13px;
+  letter-spacing: 0;
+  color: #97bf26;
+  text-shadow: none;
+}
+
+/* Long rosters scroll inside the card instead of stretching the page. */
+.roster-scroll {
+  max-height: 420px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding-right: 4px;
+}
+
+.roster-scroll .roster {
+  margin-bottom: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
