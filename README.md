@@ -61,6 +61,9 @@ all fed from one shared match state, so they never disagree:
   semi-transparent screenshot of the camera on top of the live feed.
 
 **Other**
+- **Crash-safe:** the match progress (frames, frame scores, break and its balls, whose turn it is) is saved to
+  `match_state.json` next to `obs-snooker.py` within half a second of every change and restored when the script loads
+  (after an OBS crash/restart or "Reload Scripts"). Start a fresh match with *Reset whole match*.
 - Works on macOS and Windows (screenshots and instructions are for Windows; development was done on macOS).
 - The web pages are served by a small built-in HTTP server on port `8710`; no internet connection is needed
   (only the optional Oswald web font falls back to a system font without it).
@@ -145,6 +148,7 @@ Recommended: update to Windows 10/11.
 - **Overlay is blank:** open the URL in a normal browser first; check the port and that the script loaded.
 - **Scoreboard window has no blend / only one image in foul control:** Pillow is missing in the Python used for the window.
 - **After editing files:** *Tools -> Scripts -> Reload Scripts* is enough (no OBS restart needed).
+- **Match progress is stored in** `match_state.json` next to `obs-snooker.py` (delete it or use *Reset whole match* to start clean).
 - **Players are stored in** `players.json` next to `obs-snooker.py`.
 
 ## Development

@@ -55,6 +55,7 @@ for _cached_module_name in [
 from obs_snooker.darwin_keycode_patch import apply_macos_keycode_context_workaround
 from obs_snooker.match_state import MatchState
 from obs_snooker.overlay_server import OverlayServer
+from obs_snooker.state_store import load_progress, save_progress
 from obs_snooker.player_database import PlayerDatabase, default_players_file_path
 
 # Global variables
@@ -697,8 +698,26 @@ def _publish_foul_options() -> None:
     _foul_publish_counter += 1
 
 
+PROGRESS_FILE = os.path.join(_SCRIPT_DIR, "match_state.json")
+_last_saved_progress: dict[str, Any] | None = None
+
+
+def _save_progress_if_changed() -> None:
+    """Writes the match progress to disk whenever it changed, so it survives a crash or restart."""
+    global _last_saved_progress
+    from obs_snooker.state_store import progress_snapshot
+
+    if progress_snapshot(match_state) == _last_saved_progress:
+        return
+    try:
+        _last_saved_progress = save_progress(match_state, PROGRESS_FILE)
+    except OSError as e:
+        print(f"[obs-snooker] Couldn't save the match progress to '{PROGRESS_FILE}': {e}")
+
+
 def _apply_pending_admin_configs() -> None:
     """`obs.timer_add()` callback: persists /admin changes into the script settings."""
+    _save_progress_if_changed()
     _process_foul_actions()
     _publish_foul_options()
     if not _pending_admin_configs or current_settings is None:
@@ -1421,6 +1440,8 @@ def start_keyboard_listener() -> None:
 
 def script_load(settings: Any) -> None:
     """Called when the script is loaded in OBS."""
+    if load_progress(match_state, PROGRESS_FILE):
+        print(f"[obs-snooker] Restored the match progress from '{PROGRESS_FILE}'.")
     script_update(settings)
     start_keyboard_listener()
     start_overlay_server()
@@ -1457,3 +1478,4 @@ def script_unload() -> None:
     unregister_hotkeys()
     obs.timer_remove(_freeze_poll_tick)
     obs.timer_remove(_apply_pending_admin_configs)
+    _save_progress_if_changed()
