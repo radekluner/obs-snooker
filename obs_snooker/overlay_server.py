@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+import socket
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -47,7 +48,31 @@ _ROUTES = {
     "/admin": "admin.html",
     "/admin.css": "admin.css",
     "/admin.js": "admin.js",
+    "/qrcode.js": "qrcode.js",
 }
+
+
+def local_lan_ip() -> str | None:
+    """Best-effort guess at this machine's LAN IP (cross-platform, no extra dependencies).
+
+    Opening a UDP "connection" sends no packets but makes the OS pick the
+    interface it would route through, which ``getsockname()`` then reveals.
+    """
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            probe.connect(("8.8.8.8", 80))
+            return probe.getsockname()[0]
+    except OSError:
+        return None
+
+
+def mdns_hostname() -> str | None:
+    """The computer's ``name.local`` address (resolved by mDNS/Bonjour on phones, tablets and modern PCs)."""
+    try:
+        name = socket.gethostname().split(".")[0].strip()
+    except OSError:
+        return None
+    return f"{name}.local" if name else None
 
 # Ball point values, shared with obs-snooker.py's own OBS-hotkey/button
 # definitions (kept as a separate copy here, rather than imported, since
@@ -377,6 +402,15 @@ class OverlayServer:
         """URL of the admin page (match setup, player roster, score corrections)."""
         return f"http://{self._connectable_host}:{self.port}/admin"
 
+    def access_urls(self) -> dict[str, str | None]:
+        """Control-panel addresses for other devices on the LAN: by computer name (mDNS) and by IP."""
+        host = mdns_hostname()
+        ip = local_lan_ip()
+        return {
+            "by_name": f"http://{host}:{self.port}/control" if host else None,
+            "by_ip": f"http://{ip}:{self.port}/control" if ip else None,
+        }
+
     def apply_selection(self) -> None:
         """Applies the configured player selection (roster players or custom names) to the match state."""
         for number in (1, 2):
@@ -418,6 +452,7 @@ class OverlayServer:
             "flags": flags,
             "roster_available": self.player_db is not None,
             "foul": self.foul_snapshot(),
+            "access": self.access_urls(),
         }
 
     def apply_admin_action(self, payload: dict[str, Any]) -> None:

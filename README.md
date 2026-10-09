@@ -111,8 +111,10 @@ The window is a separate process started with your Python. If auto-detection fai
 1. **Overlay:** add a *Browser* source, URL `http://127.0.0.1:8710/overlay`, size `1920x1080`
    (a transparent background is used, leave the custom CSS empty). Place it above the camera.
 2. **Scoreboard window:** drag it to the second monitor and press **F11** for fullscreen (Esc to leave).
-3. **Control panel:** open `http://127.0.0.1:8710/control` in a browser, or from a phone/tablet on the same Wi-Fi
-   using the LAN address printed in the script log (e.g. `http://192.168.1.20:8710/control`).
+3. **Control panel:** open `http://127.0.0.1:8710/control` in a browser. For a phone/tablet on the same Wi-Fi open the
+   **admin page** on the PC: its top card shows a **QR code** (scan it with the tablet) and the addresses by IP
+   (`http://192.168.1.20:8710/control`) and by computer name (`http://my-pc.local:8710/control`, mDNS; works on
+   iOS/macOS/Windows 10+, on Android depending on version). Both are also printed in the script log.
 4. **Windows Firewall:** the first start shows a prompt for OBS / Python - allow **Private networks**,
    otherwise phones cannot connect. The control and admin pages have no password; use them only on a trusted network.
 

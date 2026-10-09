@@ -128,7 +128,30 @@ function render(data, force) {
   }
   $("players-count").textContent = `(${data.players.length})`;
   $("add-player").disabled = !data.roster_available;
+  renderAccess(data);
   renderFoul(data, force);
+}
+
+function renderAccess(data) {
+  const access = data.access || {};
+  const preferred = access.by_ip || access.by_name;
+  const ip = $("access-ip");
+  const name = $("access-name");
+  ip.textContent = access.by_ip || "";
+  ip.href = access.by_ip || "#";
+  name.textContent = access.by_name || "";
+  name.href = access.by_name || "#";
+  $("access-card").hidden = !preferred;
+  if (!preferred || renderAccess.last === preferred) {
+    return;
+  }
+  renderAccess.last = preferred;
+  if (typeof qrcode === "function") {
+    const qr = qrcode(0, "M");
+    qr.addData(preferred);
+    qr.make();
+    $("access-qr").innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
+  }
 }
 
 function renderFoul(data, force) {

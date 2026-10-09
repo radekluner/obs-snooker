@@ -11,6 +11,18 @@
   <div class="control-panel admin">
     <div class="match-title">Admin</div>
 
+    <section class="card" id="access-card">
+      <h2>Control panel on a phone / tablet</h2>
+      <div class="access">
+        <div id="access-qr" class="qr"></div>
+        <div class="access-text">
+          <p class="hint">Connect the tablet to the same Wi-Fi and scan the QR code, or type one of the addresses:</p>
+          <p><a id="access-ip" href="#"></a></p>
+          <p><a id="access-name" href="#"></a> <span class="hint">(by computer name; not every Android supports it)</span></p>
+        </div>
+      </div>
+    </section>
+
     <section class="card">
       <h2>Match setup</h2>
       <div class="form-grid">
@@ -108,6 +120,7 @@
     </p>
     <div class="status" id="status"></div>
   </div>
+  <script src="/qrcode.js"></script>
   <script src="/admin.js"></script>
 </body>
 </html>

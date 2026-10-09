@@ -54,7 +54,7 @@ for _cached_module_name in [
 
 from obs_snooker.darwin_keycode_patch import apply_macos_keycode_context_workaround
 from obs_snooker.match_state import MatchState
-from obs_snooker.overlay_server import OverlayServer
+from obs_snooker.overlay_server import OverlayServer, local_lan_ip, mdns_hostname
 from obs_snooker.state_store import load_progress, save_progress
 from obs_snooker.player_database import PlayerDatabase, default_players_file_path
 
@@ -553,26 +553,8 @@ OVERLAY_BIND_HOST = "0.0.0.0"
 
 
 def _local_lan_ip() -> str | None:
-    """Best-effort cross-platform guess at this machine's LAN IP address.
-
-    Used purely for a friendlier log message (so the overlay/control pages
-    can be opened from another device, e.g. a phone, on the same local
-    network).
-
-    The trick: opening a UDP "connection" to an arbitrary external address
-    doesn't actually send any packets (UDP is connectionless), but makes the
-    OS pick which local network interface/IP *would* be used to route
-    there, which `getsockname()` then reveals. This works the same way on
-    macOS, Windows, and Linux with no extra dependencies - unlike e.g.
-    parsing `ifconfig`/`ipconfig` output, which would need separate,
-    fragile, platform-specific parsing.
-    """
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
-            probe.connect(("8.8.8.8", 80))
-            return probe.getsockname()[0]
-    except OSError:
-        return None
+    """Best-effort guess at this machine's LAN IP (see `obs_snooker.overlay_server.local_lan_ip`)."""
+    return local_lan_ip()
 
 
 def start_overlay_server(port: int = OVERLAY_DEFAULT_PORT) -> None:
@@ -753,6 +735,9 @@ def _log_overlay_urls() -> None:
     print(f"[obs-snooker] Browser overlay available at {overlay_server.url}")
     print(f"[obs-snooker] Control panel available at {overlay_server.control_url}")
     print(f"[obs-snooker] Admin page available at {overlay_server.admin_url}")
+    host_name = mdns_hostname()
+    if host_name:
+        print(f"[obs-snooker] By computer name (phone/tablet on the same Wi-Fi): http://{host_name}:{overlay_server.port}/control")
     lan_ip = _local_lan_ip()
     if lan_ip:
         print(

@@ -548,3 +548,19 @@ def test_admin_foul_unavailable_outside_obs(tmp_path):
         assert status == 400
     finally:
         server.stop()
+
+
+def test_admin_snapshot_has_access_urls_and_qr_asset(tmp_path):
+    server, _, _ = _admin_server(tmp_path)
+    server.start()
+    try:
+        base = f"http://127.0.0.1:{server.port}"
+        with urllib.request.urlopen(f"{base}/api/admin") as r:
+            access = json.loads(r.read())["access"]
+        assert set(access) == {"by_name", "by_ip"}
+        for url in access.values():
+            assert url is None or url.endswith(f":{server.port}/control")
+        with urllib.request.urlopen(f"{base}/qrcode.js") as r:
+            assert b"qrcode" in r.read()
+    finally:
+        server.stop()
