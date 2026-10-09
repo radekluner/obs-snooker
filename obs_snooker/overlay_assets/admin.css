@@ -216,3 +216,7 @@ button.danger {
 [hidden] {
   display: none !important;
 }
+
+.actions + .hint {
+  margin-top: 14px;
+}
