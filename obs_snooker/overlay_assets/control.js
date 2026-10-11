@@ -125,3 +125,41 @@ document.querySelectorAll("button[data-action]").forEach((button) => {
 
 refresh();
 setInterval(refresh, POLL_INTERVAL_MS);
+
+// Fullscreen / PWA support: the button hides the browser bars (needs a tap, so it can't be automatic).
+const fullscreenButton = document.getElementById("fullscreen-button");
+const isInstalledApp = window.matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches;
+if (fullscreenButton && document.documentElement.requestFullscreen && !isInstalledApp) {
+  fullscreenButton.hidden = false;
+  fullscreenButton.addEventListener("click", () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    }
+  });
+  document.addEventListener("fullscreenchange", () => {
+    fullscreenButton.textContent = document.fullscreenElement ? "Exit fullscreen" : "Fullscreen";
+  });
+}
+
+// Keep the tablet screen awake while the panel is open (only available on https/localhost).
+async function keepScreenAwake() {
+  try {
+    if (navigator.wakeLock) {
+      await navigator.wakeLock.request("screen");
+    }
+  } catch (err) {
+    // Not allowed (e.g. plain http or low battery) - the screen may dim, which is harmless.
+  }
+}
+keepScreenAwake();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    keepScreenAwake();
+  }
+});
+
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}

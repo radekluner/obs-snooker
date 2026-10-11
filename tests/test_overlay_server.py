@@ -564,3 +564,23 @@ def test_admin_snapshot_has_access_urls_and_qr_asset(tmp_path):
             assert b"qrcode" in r.read()
     finally:
         server.stop()
+
+
+def test_pwa_assets_are_served():
+    server = OverlayServer(MatchState(), port=0)
+    server.start()
+    try:
+        base = f"http://127.0.0.1:{server.port}"
+        for path, content_type in (
+            ("/manifest.webmanifest", "application/manifest+json"),
+            ("/sw.js", "application/javascript"),
+            ("/icon-192.png", "image/png"),
+            ("/icon-512.png", "image/png"),
+        ):
+            with urllib.request.urlopen(base + path) as r:
+                assert content_type in r.headers["Content-Type"]
+                assert r.read()
+        with urllib.request.urlopen(base + "/manifest.webmanifest") as r:
+            assert json.loads(r.read())["display"] == "fullscreen"
+    finally:
+        server.stop()

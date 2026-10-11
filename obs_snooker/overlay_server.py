@@ -34,6 +34,8 @@ _CONTENT_TYPES = {
     ".css": "text/css; charset=utf-8",
     ".js": "application/javascript; charset=utf-8",
     ".svg": "image/svg+xml",
+    ".png": "image/png",
+    ".webmanifest": "application/manifest+json",
 }
 
 # Maps request paths to the static asset file that should be served for them.
@@ -49,6 +51,10 @@ _ROUTES = {
     "/admin.css": "admin.css",
     "/admin.js": "admin.js",
     "/qrcode.js": "qrcode.js",
+    "/manifest.webmanifest": "manifest.webmanifest",
+    "/sw.js": "sw.js",
+    "/icon-192.png": "icon-192.png",
+    "/icon-512.png": "icon-512.png",
 }
 
 

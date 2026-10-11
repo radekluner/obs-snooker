@@ -366,3 +366,14 @@ button small {
 .ball.blue { background: #2f6fe0; }
 .ball.pink { background: #f27ab8; }
 .ball.black { background: #1a1a1a; }
+
+.fs-button {
+  display: block;
+  width: auto;
+  margin: 18px auto 0;
+  padding: 10px 22px;
+}
+
+.fs-button[hidden] {
+  display: none;
+}

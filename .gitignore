@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 match_state.json
 match_state.json.tmp
+*.pyc

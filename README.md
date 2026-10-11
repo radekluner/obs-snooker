@@ -118,6 +118,20 @@ The window is a separate process started with your Python. If auto-detection fai
 4. **Windows Firewall:** the first start shows a prompt for OBS / Python - allow **Private networks**,
    otherwise phones cannot connect. The control and admin pages have no password; use them only on a trusted network.
 
+### Control panel as a fullscreen app on an Android tablet
+
+Chrome only offers a real installable app ("Install app", no address bar, no Android bars) for **https** pages or
+`localhost`; this server is plain **http** on the LAN. Two ways:
+
+1. **Quick (works always):** open the control page in Chrome and tap the **Fullscreen** button at the bottom of the
+   page. Chrome hides the address bar and Android its navigation bars (swipe from the edge to leave).
+2. **Real app (one-time setup on the tablet):**
+   1. In Chrome open `chrome://flags/#unsafely-treat-insecure-origin-as-secure`, enable it and enter the control
+      address, e.g. `http://192.168.1.20:8710` (use the IP; give the PC a fixed IP/DHCP reservation in the router so
+      it does not change). Tap *Relaunch*.
+   2. Open `http://192.168.1.20:8710/control`, then Chrome menu -> **Install app** (or *Add to Home screen*).
+   3. Start it from the home screen icon: it opens fullscreen. The page also asks to keep the screen awake.
+
 ## Using it
 
 - **Control panel:** only the player at the table can score. Balls add to the *break*; the break is added to the
