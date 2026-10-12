@@ -28,7 +28,6 @@ function renderBreakBalls(el, balls) {
 }
 
 const els = {
-  matchTitle: document.getElementById("match-title"),
   player1Name: document.getElementById("player1-name"),
   player2Name: document.getElementById("player2-name"),
   player1Break: document.getElementById("player1-break-value"),
@@ -36,12 +35,19 @@ const els = {
   player1FrameScore: document.getElementById("player1-frame-score"),
   player2FrameScore: document.getElementById("player2-frame-score"),
   turnIndicator: document.getElementById("turn-indicator"),
-  status: document.getElementById("status"),
+  toast: document.getElementById("toast"),
 };
 
-function setStatus(message, isError) {
-  els.status.textContent = message;
-  els.status.classList.toggle("error", Boolean(isError));
+let toastTimer = null;
+els.toast.addEventListener("click", () => { els.toast.hidden = true; });
+
+// Errors are shown as a large banner at the top of the screen, so they are not overlooked.
+function showError(message) {
+  const toast = els.toast;
+  toast.textContent = message;
+  toast.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.hidden = true; }, 6000);
 }
 
 async function sendAction(body) {
@@ -53,14 +59,14 @@ async function sendAction(body) {
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      setStatus(`Error: ${data.error || response.statusText}`, true);
+      showError(data.error || response.statusText);
       return;
     }
     const data = await response.json();
     applyScore(data);
-    setStatus("");
+    els.toast.hidden = true;
   } catch (err) {
-    setStatus("Network error - is the overlay server running?", true);
+    showError("Network error - is the overlay server running?");
   }
 }
 
@@ -77,19 +83,16 @@ function applyScore(data) {
     const isActive = Number(column.dataset.player) === data.current_player;
     column.classList.toggle("active", isActive);
     // Everything is locked for the player who is not at the table.
+    // "Wins frame" stays available for both players: the frame is often won while the opponent is at the table.
     column.querySelectorAll("button").forEach((button) => {
-      button.disabled = !isActive;
+      button.disabled = !isActive && button.dataset.action !== "win_frame";
     });
   });
-  els.turnIndicator.textContent = data.current_player === 1
-    ? `\u25c0 ${data.player1_name || "Player 1"} at the table`
-    : `${data.player2_name || "Player 2"} at the table \u25b6`;
-
-  if (data.match_title) {
-    els.matchTitle.textContent = data.match_title;
-  } else {
-    els.matchTitle.textContent = "";
-  }
+  els.turnIndicator.textContent = data.current_player === 1 ? "\u25c0" : "\u25b6";
+  els.turnIndicator.setAttribute(
+    "aria-label",
+    `${data.current_player === 1 ? data.player1_name : data.player2_name} is at the table`,
+  );
 }
 
 async function refresh() {
@@ -109,6 +112,12 @@ document.querySelectorAll("button[data-action]").forEach((button) => {
     const action = button.dataset.action;
     const columnEl = button.closest("[data-player]");
     const player = columnEl ? Number(columnEl.dataset.player) : undefined;
+    if (action === "win_frame" && columnEl && !columnEl.classList.contains("active")) {
+      const name = columnEl.querySelector(".player-name").textContent;
+      if (!confirm(`${name} wins the frame?`)) {
+        return;
+      }
+    }
     const body = { action };
     if (player) {
       body.player = player;
@@ -120,6 +129,21 @@ document.querySelectorAll("button[data-action]").forEach((button) => {
       body.value = Number(button.dataset.value);
     }
     sendAction(body);
+  });
+});
+
+let lastPanelSwitch = 0;
+// Tapping the panel of the player who is not at the table hands the turn over to them.
+document.querySelectorAll(".player-column").forEach((column) => {
+  column.addEventListener("click", (event) => {
+    if (event.target.closest('[data-action="win_frame"]')) {
+      return;
+    }
+    // The short lock stops a double tap from switching the turn back again.
+    if (!column.classList.contains("active") && Date.now() - lastPanelSwitch > 800) {
+      lastPanelSwitch = Date.now();
+      sendAction({ action: "switch_turn" });
+    }
   });
 });
 

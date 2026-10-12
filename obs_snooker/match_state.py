@@ -84,14 +84,19 @@ class MatchState:
         self.current_player = current_player
 
         # Points potted by the current player in their current visit to the
-        # table (the "break") that are not yet part of their frame score.
-        # They are added to the frame score when the turn changes
-        # (see :meth:`commit_break`) and discarded when a frame ends.
+        # table (the "break"). They are added to the frame score immediately;
+        # the break itself is only a running tally that is cleared when the
+        # turn changes or a frame ends.
         self.current_break = current_break
 
-        # Balls potted in the pending break, in order (names from BALL_VALUES);
+        # Balls potted in the current break, in order (names from BALL_VALUES);
         # only used for showing what the break consists of.
         self.break_balls: list[str] = list(break_balls or [])
+
+        # Every ball potted in the current frame as (player, ball), so "undo"
+        # can also fix a mistake made in an earlier break, after the turn
+        # has already been switched. Cleared when the frame ends.
+        self.ball_history: list[tuple[int, str]] = []
 
         # Optional label shown above the score in the browser overlay, e.g.
         # "World Championship - Final". Left blank by default (hidden).
@@ -124,28 +129,41 @@ class MatchState:
         setattr(self, attr, max(0, getattr(self, attr) + delta))
 
     def add_break_points(self, delta: int, ball: str | None = None) -> None:
-        """Adds (or subtracts) points to the current player's pending break, clamped at 0.
+        """Adds (or subtracts) points to the current player's break and frame score, clamped at 0.
 
         Pass ``ball`` (a name from ``BALL_VALUES``) to record which ball was
-        potted. A negative ``delta`` is an undo: it removes the last recorded
-        ball (and its value) if there is one, otherwise it only subtracts points.
+        potted. A negative ``delta`` is an undo: it removes the most recently
+        potted ball of the *current player* in this frame (even from an earlier
+        break, after switching back to them) and subtracts its value from
+        their frame score and break. The other player's points are never
+        touched. Without any recorded ball it only subtracts points.
         """
         if ball is not None:
+            self.ball_history.append((self.current_player, ball))
+            del self.ball_history[:-200]
             self.break_balls.append(ball)
-        elif delta < 0 and self.break_balls:
-            delta = -BALL_VALUES.get(self.break_balls.pop(), -delta)
-        self.current_break = max(0, self.current_break + delta)
+        elif delta < 0:
+            index = next(
+                (i for i in range(len(self.ball_history) - 1, -1, -1) if self.ball_history[i][0] == self.current_player),
+                None,
+            )
+            if index is not None:
+                _, undone = self.ball_history.pop(index)
+                value = BALL_VALUES.get(undone, -delta)
+                self.add_frame_points(self.current_player, -value)
+                # Only the current break's own balls are listed in break_balls.
+                if self.break_balls:
+                    self.break_balls.pop()
+                self.current_break = max(0, self.current_break - value)
+                return
+        new_break = max(0, self.current_break + delta)
+        self.add_frame_points(self.current_player, new_break - self.current_break)
+        self.current_break = new_break
 
     def clear_break(self) -> None:
-        """Discards the pending break and its recorded balls."""
+        """Ends the break display (the points are already in the frame score) and forgets its balls."""
         self.current_break = 0
         self.break_balls = []
-
-    def commit_break(self) -> None:
-        """Adds the pending break to the current player's frame score and clears it."""
-        if self.current_break:
-            self.add_frame_points(self.current_player, self.current_break)
-        self.clear_break()
 
     def set_frame_score(self, player: int, value: int) -> None:
         """Directly sets a player's current-frame score (clamped at 0).
@@ -177,18 +195,19 @@ class MatchState:
         if player not in (1, 2):
             raise ValueError(f"player must be 1 or 2, got {player!r}")
         if player != self.current_player:
-            self.commit_break()
+            self.clear_break()
         self.current_player = player
 
     def switch_turn(self) -> None:
         """Toggles which player currently has the "on the table" indicator."""
-        self.commit_break()
+        self.clear_break()
         self.current_player = _other_player(self.current_player)
 
     def reset_frame_scores(self) -> None:
         """Resets both players' current-frame points to zero (e.g. a re-rack), keeping frames won."""
         self.player1_frame_score = 0
         self.player2_frame_score = 0
+        self.ball_history = []
         self.clear_break()
 
     def win_frame(self, player: int) -> None:

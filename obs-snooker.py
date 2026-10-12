@@ -776,11 +776,9 @@ def refresh_scoreboard() -> None:
 
 
 def _add_break_points(player: int, delta: int, ball: str | None = None) -> None:
-    """Adds points to the pending break of the player at the table.
+    """Adds points to the break (and frame score) of the player at the table.
 
-    The break is added to that player's frame score when the turn is
-    switched (see ``MatchState.commit_break``); points for the player who is
-    not at the table are ignored.
+    Points for the player who is not at the table are ignored.
     """
     if player != match_state.current_player:
         print(f"[obs-snooker] Ignoring points for player {player}: not at the table")
@@ -790,7 +788,7 @@ def _add_break_points(player: int, delta: int, ball: str | None = None) -> None:
 
 
 def _add_points(player: int, value: int | None = None, ball: str | None = None) -> None:
-    """Adds points to a player's current break (counted into the frame score on switch turn).
+    """Adds points to a player's current break (also counted into the frame score right away).
 
     If ``value`` is omitted, uses the match's configured "points per shot"
     setting (for the generic +points button/hotkey). Otherwise adds exactly
@@ -813,6 +811,11 @@ def _subtract_points(player: int, value: int | None = None) -> None:
 
 
 def _win_frame(player: int) -> None:
+    if match_state.winner() is not None:
+        print(
+            f"[obs-snooker] Wins frame ignored: the match is already won (race to {match_state.frames_to_win}). "
+            "Raise 'Frames to win' or reset the match."
+        )
     match_state.win_frame(player)
     refresh_scoreboard()
 

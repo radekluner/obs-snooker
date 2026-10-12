@@ -20,8 +20,6 @@
     in the actual broadcast scene, or put it on its own unused scene.
   -->
   <div class="control-panel">
-    <div class="match-title" id="match-title"></div>
-
     <div class="players">
       <section class="player-column" data-player="1">
         <h2 class="player-name" id="player1-name">Player 1</h2>
@@ -37,13 +35,13 @@
         </div>
 
         <div class="ball-buttons" data-player="1">
-          <button data-action="pot_ball" data-ball="red">Red +1</button>
-          <button data-action="pot_ball" data-ball="yellow">Yellow +2</button>
-          <button data-action="pot_ball" data-ball="green">Green +3</button>
-          <button data-action="pot_ball" data-ball="brown">Brown +4</button>
-          <button data-action="pot_ball" data-ball="blue">Blue +5</button>
-          <button data-action="pot_ball" data-ball="pink">Pink +6</button>
-          <button data-action="pot_ball" data-ball="black">Black +7</button>
+          <button data-action="pot_ball" data-ball="red" aria-label="Red 1">1</button>
+          <button data-action="pot_ball" data-ball="yellow" aria-label="Yellow 2">2</button>
+          <button data-action="pot_ball" data-ball="green" aria-label="Green 3">3</button>
+          <button data-action="pot_ball" data-ball="brown" aria-label="Brown 4">4</button>
+          <button data-action="pot_ball" data-ball="blue" aria-label="Blue 5">5</button>
+          <button data-action="pot_ball" data-ball="pink" aria-label="Pink 6">6</button>
+          <button data-action="pot_ball" data-ball="black" aria-label="Black 7">7</button>
         </div>
 
         <div class="row-buttons">
@@ -53,10 +51,18 @@
       </section>
 
       <section class="shared-controls">
-        <button data-action="switch_turn">Switch turn<small>adds break to score</small></button>
-        <button data-action="reset_frame_scores">Reset frame score</button>
         <span class="turn-indicator" id="turn-indicator">-</span>
-        <div class="club-logo"><img src="/logo.svg" alt="Snooker Club Rozmarýn Brno" /></div>
+        <button class="switch-turn" data-action="switch_turn" aria-label="Switch turn" title="Switch turn (ends the break)">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M8 22h40M38 10l12 12-12 12M56 42H16M26 30L14 42l12 12" fill="none" stroke="currentColor"
+                  stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <div class="minor-controls">
+          <button class="minor" data-action="reset_frame_scores">Reset frame score</button>
+          <button class="minor fs-button" id="fullscreen-button" type="button" hidden>Fullscreen</button>
+          <div class="club-logo"><img src="/logo.svg" alt="Snooker Club Rozmarýn Brno" /></div>
+        </div>
       </section>
 
       <section class="player-column" data-player="2">
@@ -73,13 +79,13 @@
         </div>
 
         <div class="ball-buttons" data-player="2">
-          <button data-action="pot_ball" data-ball="red">Red +1</button>
-          <button data-action="pot_ball" data-ball="yellow">Yellow +2</button>
-          <button data-action="pot_ball" data-ball="green">Green +3</button>
-          <button data-action="pot_ball" data-ball="brown">Brown +4</button>
-          <button data-action="pot_ball" data-ball="blue">Blue +5</button>
-          <button data-action="pot_ball" data-ball="pink">Pink +6</button>
-          <button data-action="pot_ball" data-ball="black">Black +7</button>
+          <button data-action="pot_ball" data-ball="red" aria-label="Red 1">1</button>
+          <button data-action="pot_ball" data-ball="yellow" aria-label="Yellow 2">2</button>
+          <button data-action="pot_ball" data-ball="green" aria-label="Green 3">3</button>
+          <button data-action="pot_ball" data-ball="brown" aria-label="Brown 4">4</button>
+          <button data-action="pot_ball" data-ball="blue" aria-label="Blue 5">5</button>
+          <button data-action="pot_ball" data-ball="pink" aria-label="Pink 6">6</button>
+          <button data-action="pot_ball" data-ball="black" aria-label="Black 7">7</button>
         </div>
 
         <div class="row-buttons">
@@ -89,8 +95,7 @@
       </section>
     </div>
 
-    <div class="status" id="status"></div>
-    <button class="fs-button" id="fullscreen-button" type="button" hidden>Fullscreen</button>
+    <div class="toast" id="toast" role="alert" hidden></div>
   </div>
   <script src="/control.js"></script>
 </body>

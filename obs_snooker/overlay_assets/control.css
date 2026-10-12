@@ -17,7 +17,7 @@ body {
 }
 
 .control-panel {
-  max-width: 980px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 16px;
 }
@@ -217,7 +217,15 @@ button:active {
 
 .ball-buttons button {
   padding: 16px 6px;
-  font-size: 16px;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+/* Red is by far the most used ball: a full-width, taller button; the six colours form two columns below. */
+.ball-buttons button[data-ball="red"] {
+  grid-column: 1 / -1;
+  padding: 26px 6px;
+  font-size: 40px;
 }
 
 /* Tint each ball button roughly like the real ball color, as a quick
@@ -276,9 +284,11 @@ button.secondary {
   background: linear-gradient(180deg, #1a2b86 0%, #0a1348 100%);
   border: 1px solid #4c68dc;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  font-size: 13px;
+  font-size: 34px;
+  line-height: 1;
   font-weight: 700;
   color: #97bf26;
+  text-shadow: 0 0 10px rgba(151, 191, 38, 0.7), 0 2px 0 #26340a;
 }
 
 .status {
@@ -315,8 +325,8 @@ button small {
 }
 
 .club-logo {
+  box-sizing: border-box;
   width: 100%;
-  margin-top: auto;
   padding: 6px 8px;
   background: linear-gradient(180deg, #ffffff 0%, #d5dcee 100%);
   border-bottom: 4px solid #0396c4;
@@ -367,13 +377,77 @@ button small {
 .ball.pink { background: #f27ab8; }
 .ball.black { background: #1a1a1a; }
 
-.fs-button {
-  display: block;
-  width: auto;
-  margin: 18px auto 0;
-  padding: 10px 22px;
+/* Rarely used actions sit at the bottom of the middle column, level with the bottom of the player panels. */
+.minor-controls {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shared-controls button.minor {
+  padding: 8px 6px;
+  font-size: 13px;
+  --face-top: #3b57cc;
+  --face-bottom: #26399a;
+  --side: #0f1a66;
+}
+
+.minor-controls .club-logo {
+  margin-top: 6px;
 }
 
 .fs-button[hidden] {
+  display: none;
+}
+
+/* Big switch-turn button: takes all the free height of the middle column. */
+.shared-controls button.switch-turn {
+  flex: 1 1 auto;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.switch-turn svg {
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
+}
+
+/* Clicking anywhere in the inactive player's panel switches the turn to them,
+   so its (locked) buttons must let the click through to the panel. */
+.player-column:not(.active) {
+  cursor: pointer;
+}
+
+.player-column:not(.active) button:disabled {
+  pointer-events: none;
+}
+
+/* Error banner: big, red, at the top of the screen; tap to dismiss. */
+.toast {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: min(90vw, 760px);
+  padding: 16px 26px;
+  border-radius: 12px;
+  border: 2px solid #ffb3b3;
+  background: linear-gradient(180deg, #e03a3a 0%, #8f1414 100%);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.toast[hidden] {
   display: none;
 }

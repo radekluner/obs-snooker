@@ -229,19 +229,32 @@ def test_as_overlay_text_includes_match_title_when_set():
     assert state.as_overlay_text() == "World Championship | >Alice 2 (0) - (0) 1 Bob"
 
 
-def test_break_is_committed_to_frame_score_on_switch_turn():
+def test_break_points_go_to_frame_score_immediately_and_break_clears_on_switch_turn():
     state = MatchState()
     state.add_break_points(1)
     state.add_break_points(7)
     assert state.current_break == 8
-    assert state.player1_frame_score == 0
+    assert state.player1_frame_score == 8
     state.switch_turn()
     assert state.player1_frame_score == 8
     assert state.current_break == 0
     assert state.current_player == 2
 
 
-def test_break_is_discarded_when_frame_is_won_or_reset():
+def test_undo_ball_subtracts_from_break_and_frame_score():
+    state = MatchState()
+    state.add_break_points(1, "red")
+    state.add_break_points(7, "black")
+    state.add_break_points(-1)
+    assert state.current_break == 1
+    assert state.player1_frame_score == 1
+    state.add_break_points(-1)
+    state.add_break_points(-1)
+    assert state.current_break == 0
+    assert state.player1_frame_score == 0
+
+
+def test_break_is_cleared_when_frame_is_won_or_reset():
     state = MatchState(frames_to_win=5)
     state.add_break_points(5)
     state.win_frame(1)
@@ -267,3 +280,41 @@ def test_break_records_balls_and_undo_removes_the_last_one():
     state.switch_turn()
     assert state.break_balls == []
     assert state.player1_frame_score == 1
+
+
+def test_undo_reaches_back_into_the_previous_break_after_switching_turn():
+    state = MatchState()
+    state.add_break_points(1, "red")
+    state.add_break_points(7, "black")
+    state.switch_turn()
+    assert (state.player1_frame_score, state.current_break) == (8, 0)
+    state.switch_turn()  # back to player 1 with an empty break
+    state.add_break_points(-1)
+    assert state.player1_frame_score == 1
+    assert state.current_break == 0
+    state.add_break_points(-1)
+    assert state.player1_frame_score == 0
+
+
+def test_undo_only_affects_the_current_players_balls():
+    state = MatchState()
+    state.add_break_points(5, "blue")  # player 1
+    state.switch_turn()
+    state.add_break_points(1, "red")  # player 2
+    state.add_break_points(-1)
+    assert (state.player1_frame_score, state.player2_frame_score) == (5, 0)
+    state.add_break_points(-1)  # player 2 has nothing left to undo -> player 1 is untouched
+    assert state.player1_frame_score == 5
+    assert state.ball_history == [(1, "blue")]
+    state.switch_turn()
+    state.add_break_points(-1)
+    assert state.player1_frame_score == 0
+
+
+def test_ball_history_is_cleared_when_the_frame_ends():
+    state = MatchState(frames_to_win=3)
+    state.add_break_points(1, "red")
+    state.win_frame(1)
+    state.add_break_points(-1)
+    assert state.player1_frame_score == 0
+    assert state.ball_history == []

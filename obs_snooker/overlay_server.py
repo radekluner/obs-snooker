@@ -231,6 +231,11 @@ def _make_handler(
                 state.add_break_points(_BALL_VALUES[ball], ball=ball)
             elif action == "win_frame":
                 self._require_player(player)
+                if state.winner() is not None:
+                    raise _ActionError(
+                        f"The match is already won (race to {state.frames_to_win}) - "
+                        "raise 'frames to win' in the admin page or reset the match"
+                    )
                 state.win_frame(player)
             elif action == "switch_turn":
                 state.switch_turn()

@@ -24,11 +24,11 @@ all fed from one shared match state, so they never disagree:
 
 **Scoring that follows real snooker rules**
 - Two scores per player: **frames won** (the match score, race to *N*, best of *2N-1*) and the **points in the current frame**.
-- **Break tracking:** every potted ball (red 1, yellow 2, green 3, brown 4, blue 5, pink 6, black 7) goes into the current
-  *break* of the player at the table. The break is added to the frame score when you switch the turn.
-  "Wins frame" and "Reset frame score" discard a pending break.
+- **Break tracking:** every potted ball (red 1, yellow 2, green 3, brown 4, blue 5, pink 6, black 7) is added to the frame
+  score of the player at the table **immediately** and also counted in their current *break*. "Switch turn",
+  "Wins frame" and "Reset frame score" end the break.
 - **Potted balls of the break** are shown as coloured balls with counts (e.g. red x3, blue x1) in the overlay,
-  the control panel and the scoreboard window. **Undo last ball** removes the last ball and its points.
+  the control panel and the scoreboard window. **Undo last ball** removes the last potted ball and its points, even from an earlier break after the turn was switched (switch back first, then undo; repeat to go further back within the frame).
 - **Turn indicator:** the player at the table is highlighted (arrow, glow, "ON THE TABLE"); the other player is locked
   in the control panel so a wrong player cannot be scored by mistake.
 - **Winner detection** when a player reaches the race length; the turn alternates automatically after a frame.
@@ -134,8 +134,8 @@ Chrome only offers a real installable app ("Install app", no address bar, no And
 
 ## Using it
 
-- **Control panel:** only the player at the table can score. Balls add to the *break*; the break is added to the
-  frame score on "Switch turn". "Wins frame" and "Reset frame score" discard the pending break.
+- **Control panel:** only the player at the table can score. Balls add to the *break*; every ball is added to the
+  frame score and to the break at once. "Switch turn", "Wins frame" and "Reset frame score" end the break.
 - **Admin:** ![Admin page](docs/admin.png)
 
   choose players from the roster (or a custom name), match title, race length; correct scores; manage

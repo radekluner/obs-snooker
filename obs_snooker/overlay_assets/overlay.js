@@ -158,7 +158,7 @@ async function refresh() {
     lastFrames = { player1_frames: data.player1_frames, player2_frames: data.player2_frames };
 
     // Highlight the plate of whoever is at the table and show their
-    // pending break (not yet part of the frame score) as a chip.
+    // current break as a chip.
     [1, 2].forEach((number) => {
       const isActive = data.current_player === number;
       els[`player${number}Plate`].classList.toggle("active", isActive);

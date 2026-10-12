@@ -131,7 +131,7 @@ def test_action_add_points_mutates_state():
         assert status == 200
         assert body["current_break"] == 1
         assert state.current_break == 1
-        assert state.player1_frame_score == 0
+        assert state.player1_frame_score == 1
     finally:
         server.stop()
 
@@ -169,7 +169,7 @@ def test_action_pot_ball_adds_correct_ball_value():
         server.stop()
 
 
-def test_break_is_added_to_frame_score_on_switch_turn():
+def test_break_is_in_frame_score_immediately_and_cleared_on_switch_turn():
     state = MatchState()
     server = OverlayServer(state, port=0)
     server.start()
@@ -177,7 +177,7 @@ def test_break_is_added_to_frame_score_on_switch_turn():
         url = f"http://127.0.0.1:{server.port}/api/action"
         _post(url, {"action": "pot_ball", "player": 1, "ball": "red"})
         _post(url, {"action": "pot_ball", "player": 1, "ball": "black"})
-        assert state.player1_frame_score == 0
+        assert state.player1_frame_score == 8
         _, body = _post(url, {"action": "switch_turn"})
         assert body["player1_frame_score"] == 8
         assert body["current_break"] == 0
@@ -582,5 +582,32 @@ def test_pwa_assets_are_served():
                 assert r.read()
         with urllib.request.urlopen(base + "/manifest.webmanifest") as r:
             assert json.loads(r.read())["display"] == "fullscreen"
+    finally:
+        server.stop()
+
+
+def test_win_frame_after_the_match_is_won_returns_a_clear_error():
+    state = MatchState(frames_to_win=1)
+    server = OverlayServer(state, port=0)
+    server.start()
+    try:
+        url = f"http://127.0.0.1:{server.port}/api/action"
+        assert _post(url, {"action": "win_frame", "player": 1})[0] == 200
+        status, body = _post(url, {"action": "win_frame", "player": 2})
+        assert status == 400
+        assert "already won" in body["error"]
+        assert state.player2_frames == 0
+    finally:
+        server.stop()
+
+
+def test_win_frame_works_for_the_player_not_at_the_table():
+    state = MatchState(frames_to_win=5, current_player=1)
+    server = OverlayServer(state, port=0)
+    server.start()
+    try:
+        status, _ = _post(f"http://127.0.0.1:{server.port}/api/action", {"action": "win_frame", "player": 2})
+        assert status == 200
+        assert state.player2_frames == 1
     finally:
         server.stop()
