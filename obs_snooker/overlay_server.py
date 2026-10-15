@@ -51,6 +51,8 @@ _ROUTES = {
     "/admin.css": "admin.css",
     "/admin.js": "admin.js",
     "/qrcode.js": "qrcode.js",
+    "/nosleep.js": "nosleep.js",
+    "/keepawake.js": "keepawake.js",
     "/manifest.webmanifest": "manifest.webmanifest",
     "/sw.js": "sw.js",
     "/icon-192.png": "icon-192.png",
@@ -123,6 +125,9 @@ def _make_handler(
                 return
             if self.path == "/api/admin":
                 self._send_json(self._admin_payload())
+                return
+            if self.path == "/api/links":
+                self._send_json(server.share_links())
                 return
 
             foul_match = re.fullmatch(r"/foul/(reference|current)", self.path)
@@ -422,6 +427,12 @@ class OverlayServer:
             "by_ip": f"http://{ip}:{self.port}/control" if ip else None,
         }
 
+    def share_links(self) -> dict[str, str | None]:
+        """Absolute /control and /admin URLs reachable from other devices on the LAN (for QR codes)."""
+        ip = local_lan_ip() or self._connectable_host
+        base = f"http://{ip}:{self.port}"
+        return {"control": f"{base}/control", "admin": f"{base}/admin"}
+
     def apply_selection(self) -> None:
         """Applies the configured player selection (roster players or custom names) to the match state."""
         for number in (1, 2):
@@ -711,13 +722,19 @@ def _run_preview() -> None:
     demo_db.add_player("Judd Trump", country="ENG")
     demo_db.add_player("Ronnie O'Sullivan", country="ENG")
     demo_db.add_player("Aleš Herout", country="CZE")
-    server = OverlayServer(demo_state, player_db=demo_db)
+    server = OverlayServer(demo_state, host="0.0.0.0", player_db=demo_db)
     server.start()
     print("Preview running (demo data) - open in a browser. Press Ctrl+C to stop.")
     print(f"  Overlay:       {server.url}")
     print(f"  Control panel: {server.control_url}")
     print(f"  Admin:         {server.admin_url}")
     print(f"  Score JSON:    {server.score_url}")
+    lan_ip = local_lan_ip()
+    if lan_ip:
+        print(f"From a phone/tablet on the same network (LAN IP {lan_ip}):")
+        print(f"  Overlay:       http://{lan_ip}:{server.port}/overlay")
+        print(f"  Control panel: http://{lan_ip}:{server.port}/control")
+        print(f"  Admin:         http://{lan_ip}:{server.port}/admin")
     try:
         while True:
             time.sleep(1)

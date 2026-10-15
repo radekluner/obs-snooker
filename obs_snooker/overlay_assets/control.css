@@ -260,7 +260,7 @@ button.secondary {
 }
 
 .shared-controls {
-  flex: 0 0 160px;
+  flex: 0 0 190px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -450,4 +450,106 @@ button small {
 
 .toast[hidden] {
   display: none;
+}
+
+.frame-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shared-controls .frame-controls button {
+  padding: 14px 6px;
+  font-size: 15px;
+}
+
+.shared-controls .frame-controls button.primary {
+  --face-top: #c6e65a;
+  --face-bottom: #7fa01c;
+  --side: #3f5209;
+}
+
+.shared-controls .frame-controls button.secondary {
+  --face-top: #4c68dc;
+  --face-bottom: #2a3ca8;
+  --side: #0f1a66;
+}
+
+button.club-logo {
+  display: block;
+  cursor: pointer;
+  border: 0;
+  border-bottom: 4px solid #0396c4;
+}
+
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.qr-modal[hidden] {
+  display: none;
+}
+
+.qr-dialog {
+  background: #fff;
+  color: #0b1348;
+  border-radius: 14px;
+  padding: 20px 24px;
+  text-align: center;
+}
+
+.qr-items {
+  display: flex;
+  gap: 28px;
+}
+
+.qr-items figure {
+  margin: 0;
+}
+
+.qr-code svg {
+  width: 220px;
+  height: 220px;
+}
+
+.qr-items figcaption {
+  font-weight: 700;
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.qr-hint {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+/* Narrow screens (phones): only the player at the table is shown next to the shared controls; switching turn swaps them. */
+@media (max-width: 820px) {
+  .control-panel {
+    padding: 8px;
+  }
+
+  .players {
+    gap: 8px;
+  }
+
+  .player-column:not(.active) {
+    display: none;
+  }
+
+  .shared-controls {
+    order: 1;
+    flex-basis: 130px;
+  }
+
+  .player-column {
+    min-width: 0;
+    padding: 10px;
+  }
 }

@@ -44,10 +44,6 @@
           <button data-action="pot_ball" data-ball="black" aria-label="Black 7">7</button>
         </div>
 
-        <div class="row-buttons">
-          <button class="secondary" data-action="undo_ball">Undo last ball</button>
-          <button class="primary" data-action="win_frame">Wins frame</button>
-        </div>
       </section>
 
       <section class="shared-controls">
@@ -58,10 +54,14 @@
                   stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </button>
+        <div class="frame-controls">
+          <button class="primary" data-action="win_frame">Wins frame</button>
+          <button class="secondary" data-action="undo_ball">Undo last ball</button>
+        </div>
         <div class="minor-controls">
           <button class="minor" data-action="reset_frame_scores">Reset frame score</button>
           <button class="minor fs-button" id="fullscreen-button" type="button" hidden>Fullscreen</button>
-          <div class="club-logo"><img src="/logo.svg" alt="Snooker Club Rozmarýn Brno" /></div>
+          <button class="club-logo" id="logo-button" type="button" aria-label="Show QR codes"><img src="/logo.svg" alt="Snooker Club Rozmarýn Brno" /></button>
         </div>
       </section>
 
@@ -88,15 +88,24 @@
           <button data-action="pot_ball" data-ball="black" aria-label="Black 7">7</button>
         </div>
 
-        <div class="row-buttons">
-          <button class="secondary" data-action="undo_ball">Undo last ball</button>
-          <button class="primary" data-action="win_frame">Wins frame</button>
-        </div>
       </section>
+    </div>
+
+    <div class="qr-modal" id="qr-modal" hidden>
+      <div class="qr-dialog" role="dialog" aria-label="QR codes">
+        <div class="qr-items">
+          <figure><div class="qr-code" id="qr-control"></div><figcaption>Control</figcaption></figure>
+          <figure><div class="qr-code" id="qr-admin"></div><figcaption>Admin</figcaption></figure>
+        </div>
+        <p class="qr-hint">Naskenuj telefonem ve stejné Wi-Fi. Zavřeš klepnutím mimo okno.</p>
+      </div>
     </div>
 
     <div class="toast" id="toast" role="alert" hidden></div>
   </div>
+  <script src="/qrcode.js"></script>
+  <script src="/nosleep.js"></script>
+  <script src="/keepawake.js"></script>
   <script src="/control.js"></script>
 </body>
 </html>

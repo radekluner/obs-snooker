@@ -70,7 +70,13 @@ async function sendAction(body) {
   }
 }
 
+let currentPlayer = 1;
+const lastScores = { 1: 0, 2: 0 };
+
 function applyScore(data) {
+  currentPlayer = data.current_player;
+  lastScores[1] = data.player1_frame_score;
+  lastScores[2] = data.player2_frame_score;
   els.player1Name.textContent = data.player1_name || "Player 1";
   els.player2Name.textContent = data.player2_name || "Player 2";
   els.player1FrameScore.textContent = data.player1_frame_score;
@@ -85,7 +91,7 @@ function applyScore(data) {
     // Everything is locked for the player who is not at the table.
     // "Wins frame" stays available for both players: the frame is often won while the opponent is at the table.
     column.querySelectorAll("button").forEach((button) => {
-      button.disabled = !isActive && button.dataset.action !== "win_frame";
+      button.disabled = !isActive;
     });
   });
   els.turnIndicator.textContent = data.current_player === 1 ? "\u25c0" : "\u25b6";
@@ -111,10 +117,16 @@ document.querySelectorAll("button[data-action]").forEach((button) => {
   button.addEventListener("click", () => {
     const action = button.dataset.action;
     const columnEl = button.closest("[data-player]");
-    const player = columnEl ? Number(columnEl.dataset.player) : undefined;
-    if (action === "win_frame" && columnEl && !columnEl.classList.contains("active")) {
-      const name = columnEl.querySelector(".player-name").textContent;
-      if (!confirm(`${name} wins the frame?`)) {
+    let player = columnEl ? Number(columnEl.dataset.player) : undefined;
+    if (action === "undo_ball") {
+      player = currentPlayer;
+    }
+    if (action === "win_frame") {
+      player = currentPlayer;
+      const own = lastScores[player];
+      const other = lastScores[player === 1 ? 2 : 1];
+      if (own < other) {
+        alert(`Hráč na tahu má méně bodů (${own}:${other}), takže tento frame nemohl vyhrát.`);
         return;
       }
     }
@@ -136,9 +148,6 @@ let lastPanelSwitch = 0;
 // Tapping the panel of the player who is not at the table hands the turn over to them.
 document.querySelectorAll(".player-column").forEach((column) => {
   column.addEventListener("click", (event) => {
-    if (event.target.closest('[data-action="win_frame"]')) {
-      return;
-    }
     // The short lock stops a double tap from switching the turn back again.
     if (!column.classList.contains("active") && Date.now() - lastPanelSwitch > 800) {
       lastPanelSwitch = Date.now();
@@ -167,23 +176,43 @@ if (fullscreenButton && document.documentElement.requestFullscreen && !isInstall
   });
 }
 
-// Keep the tablet screen awake while the panel is open (only available on https/localhost).
-async function keepScreenAwake() {
-  try {
-    if (navigator.wakeLock) {
-      await navigator.wakeLock.request("screen");
-    }
-  } catch (err) {
-    // Not allowed (e.g. plain http or low battery) - the screen may dim, which is harmless.
-  }
+// iPhone Safari has no Fullscreen API for web pages: the only way is "Add to Home Screen".
+if (fullscreenButton && !document.documentElement.requestFullscreen && !isInstalledApp) {
+  fullscreenButton.hidden = false;
+  fullscreenButton.addEventListener("click", () => {
+    alert("Na iPhonu: klepni na Sdílet (čtvereček se šipkou) a zvol „Přidat na plochu“. Po otevření z plochy poběží aplikace na celou obrazovku.");
+  });
 }
-keepScreenAwake();
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    keepScreenAwake();
-  }
-});
 
 if ("serviceWorker" in navigator && window.isSecureContext) {
   navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
+
+// Tapping the club logo shows QR codes that open /control and /admin on a phone.
+const qrModal = document.getElementById("qr-modal");
+
+function renderQr(target, url) {
+  const qr = qrcode(0, "M");
+  qr.addData(url);
+  qr.make();
+  target.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
+  target.title = url;
+}
+
+document.getElementById("logo-button").addEventListener("click", async () => {
+  try {
+    const response = await fetch("/api/links", { cache: "no-store" });
+    const links = await response.json();
+    renderQr(document.getElementById("qr-control"), links.control);
+    renderQr(document.getElementById("qr-admin"), links.admin);
+    qrModal.hidden = false;
+  } catch (err) {
+    // Server unreachable - nothing to show.
+  }
+});
+
+qrModal.addEventListener("click", (event) => {
+  if (!event.target.closest(".qr-items")) {
+    qrModal.hidden = true;
+  }
+});
