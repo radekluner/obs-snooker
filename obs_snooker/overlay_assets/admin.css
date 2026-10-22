@@ -57,6 +57,22 @@ select {
   font-family: inherit;
 }
 
+/* Windows renders the dropdown list with its own (white) background, so set both explicitly. */
+select {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  color: #ffffff;
+  background-color: #11206d;
+}
+
+select option:checked {
+  color: #11206d;
+  background-color: #97bf26;
+}
+
 input:focus,
 select:focus {
   outline: none;
