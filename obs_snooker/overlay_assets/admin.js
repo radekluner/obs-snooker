@@ -8,7 +8,11 @@
 const $ = (id) => document.getElementById(id);
 const CUSTOM_NAME_OPTION = "(custom name below)";
 
+const MATCH_INPUT_IDS = ["player1-id", "player2-id", "player1-name", "player2-name", "match-title-input", "frames-to-win"];
+
 let snapshot = null;
+// True while the match setup form has unsaved edits; the background refresh must not overwrite them.
+let matchDirty = false;
 
 function setStatus(message, isError) {
   const el = $("status");
@@ -29,7 +33,10 @@ async function post(body, okMessage) {
       return false;
     }
     snapshot = data;
-    render(data, true);
+    if (body.action === "set_match") {
+      matchDirty = false;
+    }
+    render(data, !matchDirty || body.action === "set_match");
     setStatus(okMessage || "Saved");
     return true;
   } catch (err) {
@@ -56,6 +63,9 @@ function fillPlayerSelect(select, players, selectedId) {
 // Inputs the user may be typing in are only overwritten on a full render
 // (after an action), not by the background refresh.
 function setIfIdle(input, value, force) {
+  if (!force && matchDirty && MATCH_INPUT_IDS.includes(input.id)) {
+    return;
+  }
   if (force || document.activeElement !== input) {
     input.value = value;
   }
@@ -90,7 +100,7 @@ function renderRoster(data) {
 }
 
 function render(data, force) {
-  if (force || document.activeElement.tagName !== "SELECT") {
+  if (force || (!matchDirty && document.activeElement.tagName !== "SELECT")) {
     fillPlayerSelect($("player1-id"), data.players, data.config.player1_id);
     fillPlayerSelect($("player2-id"), data.players, data.config.player2_id);
   }
@@ -196,6 +206,11 @@ async function refresh() {
     setStatus("Network error - is the overlay server running?", true);
   }
 }
+
+MATCH_INPUT_IDS.forEach((id) => {
+  $(id).addEventListener("input", () => { matchDirty = true; });
+  $(id).addEventListener("change", () => { matchDirty = true; });
+});
 
 $("apply-match").addEventListener("click", () => {
   post({

@@ -94,7 +94,6 @@ body {
   border-width: 3px;
   box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.55), 0 0 36px rgba(151, 191, 38, 0.75),
     0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  animation: table-glow 1.8s ease-in-out infinite;
 }
 
 .player-column.active::before {
@@ -102,11 +101,6 @@ body {
   background: linear-gradient(180deg, #c6e65a 0%, #7fa01c 100%);
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   box-shadow: 0 -3px 10px rgba(151, 191, 38, 0.5);
-}
-
-@keyframes table-glow {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.55), 0 0 36px rgba(151, 191, 38, 0.75), 0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
-  50% { box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.3), 0 0 18px rgba(151, 191, 38, 0.4), 0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
 }
 
 .player-name {

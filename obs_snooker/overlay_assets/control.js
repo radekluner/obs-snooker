@@ -5,7 +5,7 @@
  * operator gets immediate feedback that a click actually registered.
  */
 
-const POLL_INTERVAL_MS = 500;
+const POLL_INTERVAL_MS = 1500;
 
 const BALL_ORDER = ["red", "yellow", "green", "brown", "blue", "pink", "black"];
 
@@ -157,7 +157,16 @@ document.querySelectorAll(".player-column").forEach((column) => {
 });
 
 refresh();
-setInterval(refresh, POLL_INTERVAL_MS);
+setInterval(() => {
+  if (!document.hidden) {
+    refresh();
+  }
+}, POLL_INTERVAL_MS);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    refresh();
+  }
+});
 
 // Fullscreen / PWA support: the button hides the browser bars (needs a tap, so it can't be automatic).
 const fullscreenButton = document.getElementById("fullscreen-button");
