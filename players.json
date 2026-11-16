@@ -23,17 +23,17 @@
     {
       "id": "5d40169d",
       "name": "Richard Stroughair",
-      "country": "CZE"
+      "country": "ENG"
     },
     {
       "id": "9096247b",
       "name": "Heath Williams",
-      "country": "CZE"
+      "country": "AUS"
     },
     {
       "id": "ce025a8d",
       "name": "Jean Marie Hustin",
-      "country": "CZE"
+      "country": "BEL"
     },
     {
       "id": "362ca9ba",
@@ -53,7 +53,7 @@
     {
       "id": "9d2c11fd",
       "name": "Mykhailo Kusen Diadora",
-      "country": "CZE"
+      "country": "UKR"
     },
     {
       "id": "d44b6532",
@@ -68,7 +68,7 @@
     {
       "id": "fb7d65c8",
       "name": "Rajesh Naidu",
-      "country": "CZE"
+      "country": "IND"
     },
     {
       "id": "35ed5f81",
@@ -78,7 +78,7 @@
     {
       "id": "025fd971",
       "name": "Andrej Rusiňák",
-      "country": "CZE"
+      "country": "SVK"
     },
     {
       "id": "aaa73c69",
@@ -118,7 +118,7 @@
     {
       "id": "5c09af91",
       "name": "Ildar Sharipov",
-      "country": "CZE"
+      "country": "RUS"
     },
     {
       "id": "8d6fbfa7",
@@ -128,7 +128,7 @@
     {
       "id": "5d6610be",
       "name": "Boris Augustin",
-      "country": "CZE"
+      "country": "SVK"
     },
     {
       "id": "506c123f",
@@ -243,11 +243,171 @@
     {
       "id": "a054d118",
       "name": "Aamir Husain",
-      "country": "CZE"
+      "country": "IND"
     },
     {
       "id": "24df59f6",
       "name": "Jan Jakub Šimon",
+      "country": "CZE"
+    },
+    {
+      "id": "332de2e6",
+      "name": "Martin Cupal",
+      "country": "CZE"
+    },
+    {
+      "id": "75676de7",
+      "name": "Zdeněk Šnejdar",
+      "country": "CZE"
+    },
+    {
+      "id": "86cd494f",
+      "name": "Adam King",
+      "country": "ENG"
+    },
+    {
+      "id": "cd276495",
+      "name": "Kryštof Michal",
+      "country": "CZE"
+    },
+    {
+      "id": "12df2f56",
+      "name": "Damjan Markovic",
+      "country": "CZE"
+    },
+    {
+      "id": "dd544e71",
+      "name": "Dominik Demel",
+      "country": "CZE"
+    },
+    {
+      "id": "1419f0b3",
+      "name": "Tom Kurz",
+      "country": "CZE"
+    },
+    {
+      "id": "5f40b266",
+      "name": "Kevin Čižmarovič",
+      "country": "SVK"
+    },
+    {
+      "id": "8a9984f3",
+      "name": "Calvin Washburn",
+      "country": "CZE"
+    },
+    {
+      "id": "39dacc89",
+      "name": "Petr Studený",
+      "country": "CZE"
+    },
+    {
+      "id": "fef09c97",
+      "name": "Jan Talafant",
+      "country": "CZE"
+    },
+    {
+      "id": "b9df056b",
+      "name": "Jan Švadlenka",
+      "country": "CZE"
+    },
+    {
+      "id": "c2d77c6d",
+      "name": "Josef Katrušák",
+      "country": "CZE"
+    },
+    {
+      "id": "4d7b167c",
+      "name": "Rostislav Kozák",
+      "country": "CZE"
+    },
+    {
+      "id": "af036eec",
+      "name": "Jakub Rendla",
+      "country": "CZE"
+    },
+    {
+      "id": "5b580272",
+      "name": "Jan Zábranský",
+      "country": "CZE"
+    },
+    {
+      "id": "b3aeeca3",
+      "name": "Zaid Al Tamimi",
+      "country": "CZE"
+    },
+    {
+      "id": "f9300868",
+      "name": "Bálint Elekes",
+      "country": "HUN"
+    },
+    {
+      "id": "22fbe236",
+      "name": "Jaroslav Kročil",
+      "country": "CZE"
+    },
+    {
+      "id": "b0fc9c1e",
+      "name": "Osip Zusmanovich",
+      "country": "CZE"
+    },
+    {
+      "id": "02a42a62",
+      "name": "Vojtěch Marvan",
+      "country": "CZE"
+    },
+    {
+      "id": "f93be899",
+      "name": "Ondřej Ščambura",
+      "country": "CZE"
+    },
+    {
+      "id": "6ed2aa80",
+      "name": "Matej Hrubčo",
+      "country": "SVK"
+    },
+    {
+      "id": "2ee2226d",
+      "name": "Jiří Jakub Trpkoš",
+      "country": "CZE"
+    },
+    {
+      "id": "e20b4d27",
+      "name": "Karel Salavec",
+      "country": "CZE"
+    },
+    {
+      "id": "c25359d8",
+      "name": "Jiří Zlámaný",
+      "country": "CZE"
+    },
+    {
+      "id": "acbb381c",
+      "name": "Lubomír Šubert",
+      "country": "CZE"
+    },
+    {
+      "id": "1db45911",
+      "name": "Hugo Revenda",
+      "country": "CZE"
+    },
+    {
+      "id": "37bde3fe",
+      "name": "Calvin Parkins",
+      "country": "CZE"
+    },
+    {
+      "id": "949cf1d5",
+      "name": "Marek Kaláč",
+      "country": "CZE"
+    },
+    {
+      "id": "eb6b80e8",
+      "name": "Milan Medvěd",
+      "country": "CZE"
+    },
+    {
+      "id": "0092cfda",
+      "name": "Jan Frýd",
       "country": "CZE"
     }
   ]
