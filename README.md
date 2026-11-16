@@ -32,6 +32,9 @@ all fed from one shared match state, so they never disagree:
 - **Turn indicator:** the player at the table is highlighted (arrow, glow, "ON THE TABLE"); the other player is locked
   in the control panel so a wrong player cannot be scored by mistake.
 - **Winner detection** when a player reaches the race length; the turn alternates automatically after a frame.
+- **Match status for viewers** (admin page): *Waiting for start*, *Live*, *Interval* or *Match finished*, with an
+  optional note (e.g. "Starts at 18:00"). Outside *Live* the overlay shows a banner above the bar and highlights
+  nobody; once a player reaches the race length it announces the winner by itself (e.g. "Jan Novák wins 10-2").
 - **Manual correction** of frame score, frames won and break (admin page or OBS Scripts panel) and a re-rack/reset.
   *Reset whole match* is deliberately only available in the admin page and the Scripts panel (with confirmation)
   and has no hotkey.
@@ -137,7 +140,7 @@ Chrome only offers a real installable app ("Install app", no address bar, no And
   frame score and to the break at once. "Switch turn", "Wins frame" and "Reset frame score" end the break.
 - **Admin:** ![Admin page](docs/admin.png)
 
-  choose players from the roster (or a custom name), match title, race length; correct scores; manage
+  set the match status shown to viewers; choose players from the roster (or a custom name), match title, race length; correct scores; manage
   the player roster (name + 3-letter country code, e.g. `CZE`, `ENG`).
 - **Hotkeys:** OBS *Settings -> Hotkeys*, search for "Snooker".
 - **Foul & miss control** (admin page; shown only when running inside OBS):

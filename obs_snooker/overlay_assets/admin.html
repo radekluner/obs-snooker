@@ -24,6 +24,22 @@
     </section>
 
     <section class="card">
+      <h2>Match status</h2>
+      <div class="status-buttons">
+        <button data-status="waiting">Waiting for start</button>
+        <button data-status="live">Live</button>
+        <button data-status="interval">Interval</button>
+        <button data-status="finished">Match finished</button>
+      </div>
+      <div class="form-grid status-note">
+        <label>Note for viewers (optional)
+          <input id="status-note" type="text" maxlength="80" autocomplete="off" placeholder="e.g. Starts at 18:00" />
+        </label>
+      </div>
+      <p class="hint">Shown to viewers above the overlay bar. "Live" shows nothing extra; once a player reaches the frames to win, the overlay announces the winner by itself. Click a status (or press Enter in the note) to apply the note.</p>
+    </section>
+
+    <section class="card">
       <h2>Match setup</h2>
       <div class="form-grid">
         <label>Player 1

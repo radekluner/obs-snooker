@@ -551,6 +551,8 @@ def _state_from_payload(payload: dict) -> MatchState:
         current_break=payload.get("current_break", 0),
         break_balls=payload.get("break_balls", []),
         match_title=payload.get("match_title", ""),
+        match_status=payload.get("match_status", "live"),
+        status_note=payload.get("status_note", ""),
     )
 
 

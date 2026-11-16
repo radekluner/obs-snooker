@@ -10,6 +10,7 @@ def test_progress_roundtrip(tmp_path):
     state.add_break_points(7, "black")
     state.switch_turn()
     state.add_break_points(5, "blue")
+    state.set_status("interval", "Back at 19:30")
     save_progress(state, path)
 
     restored = MatchState(frames_to_win=5)
@@ -39,3 +40,27 @@ def test_invalid_values_are_sanitized(tmp_path):
     assert state.player1_frames == 0
     assert state.current_player == 1
     assert state.break_balls == ["red"]
+
+
+
+def test_file_without_match_status_loads_as_live(tmp_path):
+    path = tmp_path / "old.json"
+    path.write_text(
+        '{"player1_frames": 1, "player2_frames": 0, "player1_frame_score": 0, "player2_frame_score": 0,'
+        ' "current_player": 1, "current_break": 0, "break_balls": []}'
+    )
+    state = MatchState()
+    state.set_status("finished", "old note")
+    assert load_progress(state, str(path))
+    assert (state.match_status, state.status_note) == ("live", "")
+
+
+def test_unknown_saved_status_falls_back_to_live(tmp_path):
+    path = tmp_path / "s.json"
+    path.write_text(
+        '{"player1_frames": 0, "player2_frames": 0, "player1_frame_score": 0, "player2_frame_score": 0,'
+        ' "current_player": 1, "current_break": 0, "match_status": "paused", "status_note": 5}'
+    )
+    state = MatchState()
+    assert load_progress(state, str(path))
+    assert (state.match_status, state.status_note) == ("live", "")
