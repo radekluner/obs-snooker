@@ -9,6 +9,10 @@
 const POLL_INTERVAL_MS = 400;
 
 const els = {
+  bug: document.querySelector(".broadcast-bug"),
+  statusBanner: document.getElementById("status-banner"),
+  statusLabel: document.getElementById("status-label"),
+  statusNote: document.getElementById("status-note"),
   matchTitle: document.getElementById("match-title"),
   raceLabel: document.getElementById("race-label"),
   player1Name: document.getElementById("player1-name"),
@@ -90,6 +94,43 @@ function applyNameSizing(el, length) {
   el.classList.toggle("very-long", length > VERY_LONG_NAME_THRESHOLD);
 }
 
+const STATUS_LABELS = {
+  waiting: "Match starts soon",
+  interval: "Interval",
+  finished: "Match finished",
+};
+
+// The status announced to viewers. A match whose winner is already decided
+// shows as finished even if the operator has not switched the status yet
+// (only in the overlay - the status stored on the server is not changed).
+function effectiveStatus(data) {
+  const status = data.match_status || "live";
+  const decided = data.player1_frames >= data.frames_to_win || data.player2_frames >= data.frames_to_win;
+  return status === "live" && decided ? "finished" : status;
+}
+
+function renderStatus(data, status) {
+  els.statusBanner.hidden = status === "live";
+  els.bug.className = `broadcast-bug status-${status}`;
+  if (status === "live") {
+    return;
+  }
+  els.statusLabel.textContent = STATUS_LABELS[status] || status;
+  const parts = [];
+  if (status === "finished") {
+    const p1 = data.player1_frames;
+    const p2 = data.player2_frames;
+    if (p1 !== p2) {
+      const winner = p1 > p2 ? data.player1_name : data.player2_name;
+      parts.push(`${winner} wins ${Math.max(p1, p2)}\u2013${Math.min(p1, p2)}`);
+    }
+  }
+  if (data.status_note) {
+    parts.push(data.status_note);
+  }
+  els.statusNote.textContent = parts.join(" \u00b7 ");
+}
+
 function bump(el) {
   el.classList.remove("bump");
   // Force a reflow so the animation can be retriggered on consecutive bumps.
@@ -104,6 +145,10 @@ async function refresh() {
       return;
     }
     const data = await response.json();
+    const status = effectiveStatus(data);
+    // Outside live play nobody is "at the table": no highlighted plate, break or turn arrow.
+    const live = status === "live";
+    renderStatus(data, status);
 
     if (data.match_title) {
       els.matchTitle.textContent = data.match_title;
@@ -160,9 +205,9 @@ async function refresh() {
     // Highlight the plate of whoever is at the table and show their
     // current break as a chip.
     [1, 2].forEach((number) => {
-      const isActive = data.current_player === number;
+      const isActive = live && data.current_player === number;
       els[`player${number}Plate`].classList.toggle("active", isActive);
-      els[`player${number}Plate`].classList.toggle("inactive", !isActive);
+      els[`player${number}Plate`].classList.toggle("inactive", live && !isActive);
       const chip = els[`player${number}Break`];
       const showBreak = isActive && data.current_break > 0;
       chip.hidden = !showBreak;
@@ -176,8 +221,8 @@ async function refresh() {
       }
     });
 
-    els.player1Turn.classList.toggle("active", data.current_player === 1);
-    els.player2Turn.classList.toggle("active", data.current_player === 2);
+    els.player1Turn.classList.toggle("active", live && data.current_player === 1);
+    els.player2Turn.classList.toggle("active", live && data.current_player === 2);
   } catch (err) {
     // Network hiccup (e.g. OBS still starting the browser source); retry on
     // the next poll instead of throwing.

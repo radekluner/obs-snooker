@@ -32,12 +32,15 @@ all fed from one shared match state, so they never disagree:
 - **Turn indicator:** the player at the table is highlighted (arrow, glow, "ON THE TABLE"); the other player is locked
   in the control panel so a wrong player cannot be scored by mistake.
 - **Winner detection** when a player reaches the race length; the turn alternates automatically after a frame.
+- **Match status for viewers** (admin page): *Waiting for start*, *Live*, *Interval* or *Match finished*, with an
+  optional note (e.g. "Starts at 18:00"). Outside *Live* the overlay shows a banner above the bar and highlights
+  nobody; once a player reaches the race length it announces the winner by itself (e.g. "Jan Novák wins 10-2").
 - **Manual correction** of frame score, frames won and break (admin page or OBS Scripts panel) and a re-rack/reset.
   *Reset whole match* is deliberately only available in the admin page and the Scripts panel (with confirmation)
   and has no hotkey.
 
 **Presentation**
-- Club colours (SC Rozmarýn Brno: blue, navy, lime green) with a 3D look and the club logo.
+- Modern dark theme shared by all screens: deep navy, flat rounded cards, the club's lime green (SC Rozmarýn Brno) as an accent, and the club logo.
 - **Overlay:** full-width lower third with country flags (85 flags included), frame-score boxes, small frames-won pill,
   break chip with potted balls, match title and race label. The active player is clearly lit, long names shrink
   automatically, the page background is transparent.
@@ -65,8 +68,7 @@ all fed from one shared match state, so they never disagree:
   `match_state.json` next to `obs-snooker.py` within half a second of every change and restored when the script loads
   (after an OBS crash/restart or "Reload Scripts"). Start a fresh match with *Reset whole match*.
 - Works on macOS and Windows (screenshots and instructions are for Windows; development was done on macOS).
-- The web pages are served by a small built-in HTTP server on port `8710`; no internet connection is needed
-  (only the optional Oswald web font falls back to a system font without it).
+- The web pages are served by a small built-in HTTP server on port `8710`; no internet connection is needed.
 - "Reload Scripts" in OBS is enough after changing any file; no restart needed.
 
 ## Pages
@@ -138,7 +140,7 @@ Chrome only offers a real installable app ("Install app", no address bar, no And
   frame score and to the break at once. "Switch turn", "Wins frame" and "Reset frame score" end the break.
 - **Admin:** ![Admin page](docs/admin.png)
 
-  choose players from the roster (or a custom name), match title, race length; correct scores; manage
+  set the match status shown to viewers; choose players from the roster (or a custom name), match title, race length; correct scores; manage
   the player roster (name + 3-letter country code, e.g. `CZE`, `ENG`).
 - **Hotkeys:** OBS *Settings -> Hotkeys*, search for "Snooker".
 - **Foul & miss control** (admin page; shown only when running inside OBS):

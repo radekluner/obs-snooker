@@ -83,6 +83,8 @@ def test_score_endpoint_reflects_state():
             "current_break": 0,
             "break_balls": [],
             "match_title": "Test Cup",
+            "match_status": "live",
+            "status_note": "",
             "foul": {"mode": "off", "version": 0, "opacity": 50},
         }
     finally:
@@ -471,6 +473,24 @@ def test_admin_score_correction_and_reset(tmp_path):
         assert (state.player2_frame_score, state.player1_frames, state.current_break) == (0, 0, 0)
         status, _ = _post(url, {"action": "bogus"})
         assert status == 400
+    finally:
+        server.stop()
+
+
+def test_admin_set_status_is_shown_in_score_and_snapshot(tmp_path):
+    server, state, _ = _admin_server(tmp_path)
+    server.start()
+    try:
+        url = f"http://127.0.0.1:{server.port}/api/admin"
+        status, body = _post(url, {"action": "set_status", "status": "waiting", "note": " Starts at 18:00 "})
+        assert status == 200
+        assert (body["match_status"], body["status_note"]) == ("waiting", "Starts at 18:00")
+        _, score, _ = _get(f"http://127.0.0.1:{server.port}/api/score")
+        score = json.loads(score)
+        assert (score["match_status"], score["status_note"]) == ("waiting", "Starts at 18:00")
+        status, body = _post(url, {"action": "set_status", "status": "paused"})
+        assert status == 400 and "status" in body["error"]
+        assert state.match_status == "waiting"
     finally:
         server.stop()
 
