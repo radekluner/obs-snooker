@@ -1,27 +1,26 @@
-/* Admin page: reuses the 3D look of control.css (palette, bevelled buttons). */
+/* Admin page: reuses the dark theme of control.css (palette variables, buttons). */
 
 .admin .match-title {
   font-size: 20px;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 6px;
 }
 
 .card {
   margin-bottom: 18px;
   padding: 14px 18px 18px;
-  background: linear-gradient(180deg, #2a47bd 0%, #11206d 100%);
-  border: 2px solid #4c68dc;
-  border-top-color: #7d95ee;
-  border-radius: 10px;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: var(--card);
+  border: 1px solid var(--card-edge);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
 }
 
 .card h2 {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: 15px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 0 #0a1148, 2px 2px 0 #0a1148, 3px 3px 5px rgba(0, 0, 0, 0.6);
+  letter-spacing: 3px;
 }
 
 .form-grid {
@@ -37,9 +36,9 @@ label {
   gap: 4px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #b4c0f0;
+  color: var(--muted);
 }
 
 input,
@@ -48,12 +47,11 @@ select {
   width: 100%;
   padding: 10px 12px;
   font-size: 15px;
-  color: #ffffff;
-  background: linear-gradient(180deg, #0a1348 0%, #121f6c 100%);
-  border: 1px solid #4c68dc;
-  border-bottom-color: #7d95ee;
-  border-radius: 6px;
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+  color: var(--text);
+  background: var(--well);
+  border: 1px solid var(--well-edge);
+  border-radius: 10px;
+  box-shadow: none;
   font-family: inherit;
 }
 
@@ -65,29 +63,29 @@ select {
 select option,
 select optgroup {
   color: #ffffff;
-  background-color: #11206d;
+  background-color: #121a3f;
 }
 
 select option:checked {
-  color: #11206d;
+  color: #0c1a02;
   background-color: #97bf26;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: #97bf26;
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(151, 191, 38, 0.6);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(151, 191, 38, 0.25);
 }
 
 .hint {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--muted);
   margin: 0 0 12px;
 }
 
 .hint a {
-  color: #97bf26;
+  color: var(--accent);
 }
 
 .footer {
@@ -100,7 +98,7 @@ select:focus {
 }
 
 .correction-head {
-  font-weight: 800;
+  font-weight: 700;
   text-align: center;
   text-transform: uppercase;
 }
@@ -108,9 +106,9 @@ select:focus {
 .correction-label {
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #b4c0f0;
+  color: var(--muted);
 }
 
 .correction-cell {
@@ -133,9 +131,9 @@ select:focus {
 }
 
 button.danger {
-  --face-top: #e03a3a;
-  --face-bottom: #8f1414;
-  --side: #4a0808;
+  --face: #2a1424;
+  --edge: #8a2a3a;
+  color: #ff8f8f;
 }
 
 .roster {
@@ -148,9 +146,9 @@ button.danger {
 .roster th {
   text-align: left;
   font-size: 12px;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #b4c0f0;
+  color: var(--muted);
 }
 
 .roster td {
@@ -198,7 +196,7 @@ button.danger {
 .collapsible > summary::after {
   content: "\25BC";
   font-size: 14px;
-  color: #97bf26;
+  color: var(--accent);
   transition: transform 0.2s;
 }
 
@@ -213,8 +211,7 @@ button.danger {
 .count {
   font-size: 13px;
   letter-spacing: 0;
-  color: #97bf26;
-  text-shadow: none;
+  color: var(--accent);
 }
 
 /* Long rosters scroll inside the card instead of stretching the page. */
@@ -247,10 +244,9 @@ button.danger {
 .qr {
   width: 170px;
   height: 170px;
-  padding: 6px;
+  padding: 8px;
   background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+  border-radius: 12px;
 }
 
 .qr svg {
@@ -264,7 +260,7 @@ button.danger {
 }
 
 .access-text a {
-  color: #97bf26;
+  color: var(--accent);
   font-weight: 700;
   word-break: break-all;
 }

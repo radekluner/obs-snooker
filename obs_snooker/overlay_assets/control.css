@@ -1,19 +1,36 @@
 /*
  * Control panel for the snooker scoreboard - viewed in any browser or via
  * OBS's Browser Source "Interact" mode, not broadcast to viewers. Large
- * touch-friendly buttons, styled like the Tk scoreboard window: club palette
- * (navy, green, lime, blue), vertical gradients, bevelled "3D" buttons that
- * sink when pressed, and extruded text-shadow digits.
+ * touch-friendly buttons in the same modern dark theme as the Tk scoreboard
+ * window: deep navy background, flat rounded cards with thin borders, and the
+ * club lime used only as an accent for the player at the table.
  */
+
+:root {
+  --bg-top: #0c1433;
+  --bg-bottom: #050817;
+  --card: #121a3f;
+  --card-edge: #243063;
+  --well: #080d26;
+  --well-edge: #273266;
+  --accent: #97bf26;
+  --accent-text: #0c1a02;
+  --text: #ffffff;
+  --muted: #8a95c2;
+  --dim: #4a5587;
+  --radius: 18px;
+  --ui-font: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --digit-font: "DIN Alternate", Bahnschrift, "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+}
 
 html,
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: linear-gradient(180deg, #1d2f9e 0%, #060b36 100%) fixed;
-  color: #ffffff;
-  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%) fixed;
+  color: var(--text);
+  font-family: var(--ui-font);
 }
 
 .control-panel {
@@ -24,17 +41,25 @@ body {
 
 .match-title {
   text-align: center;
-  color: #020939;
+  color: var(--text);
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   margin: 0 0 16px;
-  padding: 8px 12px;
+  padding: 10px 12px 14px;
   min-height: 1.2em;
-  background: linear-gradient(180deg, #ffffff 0%, #d5dcee 100%);
-  border-bottom: 5px solid #0396c4;
-  border-radius: 6px;
-  text-shadow: 0 1px 0 #ffffff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+  position: relative;
+}
+
+.match-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 64px;
+  height: 3px;
+  margin-left: -32px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
 .match-title:empty {
@@ -50,66 +75,55 @@ body {
 
 .player-column {
   flex: 1 1 0;
-  background: linear-gradient(180deg, #2a47bd 0%, #11206d 100%);
-  border: 2px solid #4c68dc;
-  border-top-color: #7d95ee;
-  border-radius: 10px;
-  padding: 14px;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  transition: box-shadow 0.2s ease-out, border-color 0.2s ease-out;
-}
-
-.player-column {
   position: relative;
-  margin-top: 30px;
-  opacity: 0.6;
-  filter: saturate(0.6);
+  margin-top: 40px;
+  padding: 14px;
+  background: var(--card);
+  border: 2px solid var(--card-edge);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  opacity: 0.55;
   transform: scale(0.97);
+  transition: box-shadow 0.2s ease-out, border-color 0.2s ease-out, opacity 0.2s, transform 0.2s;
 }
 
-/* Banner above each column; only visible for the player at the table. */
+/* Pill above each column; only visible for the player at the table. */
 .player-column::before {
   content: "ON THE TABLE";
   position: absolute;
-  left: -2px;
-  right: -2px;
-  bottom: 100%;
-  padding: 5px 0;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 2px;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 6px 18px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
   color: transparent;
-  border-radius: 10px 10px 0 0;
+  border-radius: 999px;
   background: transparent;
 }
 
 .player-column.active {
   opacity: 1;
-  filter: none;
-  transform: scale(1.02);
+  transform: scale(1.01);
   z-index: 1;
-  background: linear-gradient(180deg, #3a5ae0 0%, #1a2f95 100%);
-  border-color: #97bf26;
-  border-width: 3px;
-  box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.55), 0 0 36px rgba(151, 191, 38, 0.75),
-    0 12px 26px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(151, 191, 38, 0.35), 0 0 32px rgba(151, 191, 38, 0.35), 0 14px 30px rgba(0, 0, 0, 0.5);
 }
 
 .player-column.active::before {
-  color: #0b2a05;
-  background: linear-gradient(180deg, #c6e65a 0%, #7fa01c 100%);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-  box-shadow: 0 -3px 10px rgba(151, 191, 38, 0.5);
+  color: var(--accent-text);
+  background: var(--accent);
 }
 
 .player-name {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 20px;
+  font-weight: 700;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 0 #0a1148, 2px 2px 0 #0a1148, 3px 3px 0 #0a1148, 4px 5px 6px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
 }
 
 .live-score {
@@ -117,22 +131,32 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  margin-bottom: 14px;
-  padding: 6px 10px;
-  background: linear-gradient(180deg, #12a85a 0%, #007a3a 50%, #006a31 50%, #003a1d 100%);
-  border: 2px solid #02281a;
-  border-top-color: #6be0a0;
-  border-radius: 6px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.45);
+  margin-bottom: 12px;
+  padding: 6px 10px 16px;
+  background: var(--well);
+  border: 1px solid var(--well-edge);
+  border-radius: 14px;
+  position: relative;
+}
+
+.player-column.active .live-score::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  width: 44px;
+  height: 3px;
+  margin-left: -22px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
 .frame-score {
-  font-size: 52px;
-  line-height: 1.1;
-  font-weight: 800;
-  color: #ffffff;
-  text-shadow: 1px 1px 0 #012413, 2px 2px 0 #012413, 3px 3px 0 #012413, 4px 4px 0 #012413,
-    5px 6px 8px rgba(0, 0, 0, 0.7);
+  font-family: var(--digit-font);
+  font-size: 56px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: var(--text);
 }
 
 /* Pending break of the player at the table; it is added to their frame
@@ -144,10 +168,9 @@ body {
   gap: 4px;
   margin-bottom: 14px;
   padding: 6px 10px;
-  background: linear-gradient(180deg, #1a2b86 0%, #0a1348 100%);
-  border: 1px solid #4c68dc;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: var(--well);
+  border: 1px solid var(--well-edge);
+  border-radius: 14px;
 }
 
 .break-top {
@@ -158,18 +181,22 @@ body {
 }
 
 .break-label {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: #b4c0f0;
+  letter-spacing: 3px;
+  color: var(--muted);
 }
 
 .break-value {
-  font-size: 34px;
-  font-weight: 800;
+  font-family: var(--digit-font);
+  font-size: 32px;
+  font-weight: 700;
   line-height: 1.1;
-  color: #97bf26;
-  text-shadow: 1px 1px 0 #26340a, 2px 2px 0 #26340a, 3px 4px 5px rgba(0, 0, 0, 0.6);
+  color: var(--dim);
+}
+
+.player-column.active .break-value {
+  color: var(--accent);
 }
 
 .ball-buttons {
@@ -179,24 +206,22 @@ body {
   margin-bottom: 14px;
 }
 
-/* Base 3D button: a gradient face with a lighter top edge, and a solid
-   darker "side" drawn with box-shadow that collapses when pressed. */
+/* Base button: flat face with a faint top light, a subtle shadow and a
+   small "press" (shrink) when tapped. */
 button {
-  --face-top: #3b57cc;
-  --face-bottom: #26399a;
-  --side: #0f1a66;
+  --face: #1c2654;
+  --edge: #2e3a72;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-top-color: rgba(255, 255, 255, 0.55);
-  border-radius: 8px;
-  background: linear-gradient(180deg, var(--face-top) 0%, var(--face-bottom) 100%);
-  color: #ffffff;
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 55%), var(--face);
+  color: var(--text);
   padding: 12px 10px;
+  font-family: var(--ui-font);
   font-size: 14px;
   font-weight: 700;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.45);
-  box-shadow: 0 5px 0 var(--side), 0 8px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transform: scale(1);
   transition: transform 0.06s ease-out, box-shadow 0.06s ease-out, filter 0.1s;
 }
 
@@ -205,14 +230,16 @@ button:hover {
 }
 
 button:active {
-  transform: translateY(4px);
-  box-shadow: 0 1px 0 var(--side), 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
 .ball-buttons button {
   padding: 16px 6px;
+  font-family: var(--digit-font);
   font-size: 30px;
   line-height: 1.1;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Red is by far the most used ball: a full-width, taller button; the six colours form two columns below. */
@@ -224,13 +251,13 @@ button:active {
 
 /* Tint each ball button roughly like the real ball color, as a quick
    visual cue (not meant to be exact snooker-ball colors). */
-.ball-buttons button[data-ball="red"] { --face-top: #e03a3a; --face-bottom: #8f1414; --side: #4a0808; }
-.ball-buttons button[data-ball="yellow"] { --face-top: #f0d43a; --face-bottom: #a58a10; --side: #584806; color: #1d1700; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4); }
-.ball-buttons button[data-ball="green"] { --face-top: #2fb457; --face-bottom: #0f6a2c; --side: #063a16; }
-.ball-buttons button[data-ball="brown"] { --face-top: #a8683a; --face-bottom: #5a3114; --side: #2e1708; }
-.ball-buttons button[data-ball="blue"] { --face-top: #3f82e8; --face-bottom: #1a3f94; --side: #0b1f52; }
-.ball-buttons button[data-ball="pink"] { --face-top: #f07ab8; --face-bottom: #a02a70; --side: #561038; }
-.ball-buttons button[data-ball="black"] { --face-top: #4a4a52; --face-bottom: #121216; --side: #000000; }
+.ball-buttons button[data-ball="red"] { --face: #c42222; }
+.ball-buttons button[data-ball="yellow"] { --face: #e3c21e; color: #1d1700; }
+.ball-buttons button[data-ball="green"] { --face: #1d8a40; }
+.ball-buttons button[data-ball="brown"] { --face: #7d4a22; }
+.ball-buttons button[data-ball="blue"] { --face: #2a63cc; }
+.ball-buttons button[data-ball="pink"] { --face: #e070ad; }
+.ball-buttons button[data-ball="black"] { --face: #24242a; border-color: rgba(255, 255, 255, 0.18); }
 
 .row-buttons {
   display: flex;
@@ -238,18 +265,15 @@ button:active {
 }
 
 button.primary {
-  --face-top: #c6e65a;
-  --face-bottom: #7fa01c;
-  --side: #3f5209;
+  --face: var(--accent);
+  --edge: #b3d94a;
   flex: 2;
-  color: #0b2a05;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: var(--accent-text);
 }
 
 button.secondary {
-  --face-top: #4c68dc;
-  --face-bottom: #2a3ca8;
-  --side: #0f1a66;
+  --face: #1c2654;
+  --edge: #2e3a72;
   flex: 1;
 }
 
@@ -265,24 +289,19 @@ button.secondary {
 
 .shared-controls button {
   width: 100%;
-  --face-top: #14b8e8;
-  --face-bottom: #0377a0;
-  --side: #02435a;
 }
 
 .turn-indicator {
   text-align: center;
   margin-top: 8px;
   padding: 8px 6px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, #1a2b86 0%, #0a1348 100%);
-  border: 1px solid #4c68dc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  font-size: 34px;
+  border-radius: 999px;
+  background: var(--well);
+  border: 1px solid var(--well-edge);
+  font-size: 30px;
   line-height: 1;
   font-weight: 700;
-  color: #97bf26;
-  text-shadow: 0 0 10px rgba(151, 191, 38, 0.7), 0 2px 0 #26340a;
+  color: var(--accent);
 }
 
 .status {
@@ -290,7 +309,7 @@ button.secondary {
   text-align: center;
   min-height: 1.2em;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--muted);
 }
 
 .status.error {
@@ -299,15 +318,15 @@ button.secondary {
 
 button:disabled {
   cursor: not-allowed;
-  filter: grayscale(0.8) brightness(0.7);
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--side), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  filter: grayscale(0.85) brightness(0.6);
+  transform: scale(1);
+  box-shadow: none;
 }
 
 button:disabled:hover,
 button:disabled:active {
-  filter: grayscale(0.8) brightness(0.7);
-  transform: translateY(3px);
+  filter: grayscale(0.85) brightness(0.6);
+  transform: scale(1);
 }
 
 button small {
@@ -321,11 +340,11 @@ button small {
 .club-logo {
   box-sizing: border-box;
   width: 100%;
-  padding: 6px 8px;
-  background: linear-gradient(180deg, #ffffff 0%, #d5dcee 100%);
-  border-bottom: 4px solid #0396c4;
-  border-radius: 8px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid var(--card-edge);
+  border-radius: 12px;
+  box-shadow: none;
 }
 
 .club-logo img {
@@ -339,15 +358,16 @@ button small {
   flex-wrap: wrap;
   justify-content: center;
   min-height: 22px;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
 .ball-count {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  font-weight: 700;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .ball-count em {
@@ -360,7 +380,7 @@ button small {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.45), inset 2px 2px 3px rgba(255, 255, 255, 0.55), 0 1px 3px rgba(0, 0, 0, 0.6);
+  box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.45), inset 2px 2px 3px rgba(255, 255, 255, 0.45), 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .ball.red { background: #d91f1f; }
@@ -369,7 +389,7 @@ button small {
 .ball.brown { background: #8a5226; }
 .ball.blue { background: #2f6fe0; }
 .ball.pink { background: #f27ab8; }
-.ball.black { background: #1a1a1a; }
+.ball.black { background: #2a2a2a; }
 
 /* Rarely used actions sit at the bottom of the middle column, level with the bottom of the player panels. */
 .minor-controls {
@@ -380,11 +400,11 @@ button small {
 }
 
 .shared-controls button.minor {
-  padding: 8px 6px;
+  padding: 9px 6px;
   font-size: 13px;
-  --face-top: #3b57cc;
-  --face-bottom: #26399a;
-  --side: #0f1a66;
+  --face: #121a3f;
+  --edge: #243063;
+  color: var(--muted);
 }
 
 .minor-controls .club-logo {
@@ -405,10 +425,16 @@ button small {
   padding: 10px;
 }
 
+.shared-controls button.switch-turn {
+  --face: #16204b;
+  --edge: #34427e;
+  color: var(--accent);
+  border-radius: var(--radius);
+}
+
 .switch-turn svg {
   width: 64px;
   height: 64px;
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
 }
 
 /* Clicking anywhere in the inactive player's panel switches the turn to them,
@@ -430,15 +456,14 @@ button small {
   z-index: 100;
   max-width: min(90vw, 760px);
   padding: 16px 26px;
-  border-radius: 12px;
-  border: 2px solid #ffb3b3;
-  background: linear-gradient(180deg, #e03a3a 0%, #8f1414 100%);
+  border-radius: 14px;
+  border: 1px solid #ff8a8a;
+  background: #c42222;
   color: #ffffff;
   font-size: 22px;
   font-weight: 700;
   text-align: center;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
   cursor: pointer;
 }
 
@@ -458,22 +483,18 @@ button small {
 }
 
 .shared-controls .frame-controls button.primary {
-  --face-top: #c6e65a;
-  --face-bottom: #7fa01c;
-  --side: #3f5209;
+  --face: var(--accent);
+  --edge: #b3d94a;
 }
 
 .shared-controls .frame-controls button.secondary {
-  --face-top: #4c68dc;
-  --face-bottom: #2a3ca8;
-  --side: #0f1a66;
+  --face: #1c2654;
+  --edge: #2e3a72;
 }
 
 button.club-logo {
   display: block;
   cursor: pointer;
-  border: 0;
-  border-bottom: 4px solid #0396c4;
 }
 
 .qr-modal {
@@ -483,7 +504,7 @@ button.club-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(3, 5, 15, 0.8);
 }
 
 .qr-modal[hidden] {
@@ -491,10 +512,12 @@ button.club-logo {
 }
 
 .qr-dialog {
-  background: #fff;
-  color: #0b1348;
-  border-radius: 14px;
-  padding: 20px 24px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-edge);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  padding: 22px 26px;
   text-align: center;
 }
 
@@ -507,20 +530,28 @@ button.club-logo {
   margin: 0;
 }
 
+/* QR codes stay black on white so every phone camera reads them reliably. */
 .qr-code svg {
+  display: block;
   width: 220px;
   height: 220px;
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 12px;
 }
 
 .qr-items figcaption {
+  margin-top: 10px;
   font-weight: 700;
-  font-size: 20px;
+  font-size: 16px;
+  letter-spacing: 3px;
   text-transform: uppercase;
 }
 
 .qr-hint {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   font-size: 14px;
+  color: var(--muted);
 }
 
 /* Narrow screens (phones): only the player at the table is shown next to the shared controls; switching turn swaps them. */

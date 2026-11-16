@@ -3,21 +3,37 @@
  * composition of televised snooker coverage (a full-width bar docked to the
  * bottom of the screen: name plates on the outside, a turn-indicator arrow,
  * a big score box for the in-progress frame score, and a small centered
- * pill for frames won) - but using this project's own original color
- * palette (navy name plates, a lime trim line, green score boxes
- * with lime digits - now the club's colors from snooker-morava.cz) rather than copying any specific broadcaster's actual
- * colors/branding. Keep the page background fully transparent so OBS's
- * Browser Source shows only this graphic on top of the camera feed.
+ * pill for frames won) - but in this project's own modern dark theme, shared
+ * with the Tk scoreboard window and the control/admin pages: deep navy,
+ * flat surfaces with thin borders, and the club lime (snooker-morava.cz)
+ * used only as an accent for the player at the table. Keep the page
+ * background fully transparent so OBS's Browser Source shows only this
+ * graphic on top of the camera feed.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap");
+:root {
+  --bar: #0e1638;
+  --plate: #121a3f;
+  --plate-active: #18224d;
+  --edge: #243063;
+  --well: #080d26;
+  --accent: #97bf26;
+  --accent-text: #0c1a02;
+  --text: #ffffff;
+  --muted: #8a95c2;
+  --dim: #4a5587;
+  /* System fonts only (no web font download), so the overlay renders the
+     same with or without internet access. */
+  --ui-font: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --digit-font: "DIN Alternate", Bahnschrift, "Avenir Next", "Segoe UI", Helvetica, Arial, sans-serif;
+}
 
 html,
 body {
   margin: 0;
   padding: 0;
   background: transparent;
-  font-family: "Oswald", "Arial Narrow", Arial, sans-serif;
+  font-family: var(--ui-font);
   overflow: hidden;
 }
 
@@ -35,18 +51,20 @@ body {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 6px;
-  padding: 3px 18px;
-  background: linear-gradient(135deg, #0396c4, #02709a);
-  border: 1px solid rgba(151, 191, 38, 0.7);
-  border-radius: 4px;
-  color: #ffffff;
+  margin-bottom: 8px;
+  padding: 5px 20px;
+  background: var(--bar);
+  border: 1px solid var(--edge);
+  border-bottom: 2px solid var(--accent);
+  border-radius: 8px;
+  color: var(--text);
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 2px;
+  font-weight: 600;
+  letter-spacing: 3px;
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
 }
 
 .match-title.visible {
@@ -57,8 +75,9 @@ body {
   display: flex;
   align-items: stretch;
   width: 100%;
-  border-top: 3px solid #97bf26;
-  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.55);
+  background: var(--bar);
+  border-top: 1px solid var(--edge);
+  box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.45);
 }
 
 .name-plate {
@@ -67,7 +86,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 8px 30px;
-  background: linear-gradient(135deg, #1d33a0 0%, #0f1d63 100%);
+  background: var(--plate);
   min-width: 0;
 }
 
@@ -84,12 +103,11 @@ body {
 }
 
 .flag {
-  height: 26px;
-  width: 39px;
+  height: 24px;
+  width: 36px;
   object-fit: cover;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   flex-shrink: 0;
 }
 
@@ -98,11 +116,11 @@ body {
 }
 
 .player-name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: #f2f2f2;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -114,12 +132,12 @@ body {
 }
 
 .player-name.long {
-  font-size: 18px;
-  letter-spacing: 1px;
+  font-size: 17px;
+  letter-spacing: 0.5px;
 }
 
 .player-name.very-long {
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.5px;
 }
 
@@ -128,12 +146,12 @@ body {
    at the table. Built as a solid-backed box (so no page background shows
    through) with the triangle itself drawn via a ::after border-trick. */
 .turn-indicator {
-  width: 16px;
+  width: 20px;
   flex-shrink: 0;
   align-self: stretch;
   display: flex;
   align-items: center;
-  background: #0a1555;
+  background: var(--well);
 }
 
 .turn-right {
@@ -151,29 +169,32 @@ body {
   height: 0;
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
-  transition: border-color 0.15s ease-out, filter 0.15s ease-out;
+  transition: border-color 0.15s ease-out;
 }
 
 .turn-right::after {
-  border-left: 11px solid rgba(255, 255, 255, 0.25);
-  margin-left: 2px;
+  border-left: 11px solid var(--dim);
+  margin-left: 3px;
 }
 
 .turn-left::after {
-  border-right: 11px solid rgba(255, 255, 255, 0.25);
-  margin-right: 2px;
+  border-right: 11px solid var(--dim);
+  margin-right: 3px;
+}
+
+.turn-right.active::after,
+.turn-left.active::after {
+  border-top-width: 11px;
+  border-bottom-width: 11px;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .turn-right.active::after {
-  border-left-color: #97bf26;
-  filter: drop-shadow(0 0 4px rgba(151, 191, 38, 0.8));
-  animation: pulse 1.6s ease-in-out infinite;
+  border-left: 14px solid var(--accent);
 }
 
 .turn-left.active::after {
-  border-right-color: #97bf26;
-  filter: drop-shadow(0 0 4px rgba(151, 191, 38, 0.8));
-  animation: pulse 1.6s ease-in-out infinite;
+  border-right: 14px solid var(--accent);
 }
 
 @keyframes pulse {
@@ -188,12 +209,13 @@ body {
 
 .race-label {
   display: none;
-  padding: 3px 0 6px;
-  background: #0a1555;
-  color: rgba(242, 242, 242, 0.75);
+  padding: 3px 0 5px;
+  background: var(--well);
+  border-top: 1px solid var(--edge);
+  color: var(--muted);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 2px;
+  font-weight: 600;
+  letter-spacing: 3px;
   text-transform: uppercase;
   text-align: center;
 }
@@ -206,16 +228,17 @@ body {
    number since it changes shot-by-shot and needs to be readable from
    across the room. */
 .score-box {
-  min-width: 72px;
+  min-width: 76px;
   padding: 6px 16px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #00733a 0%, #003d1f 100%);
+  background: var(--well);
+  font-family: var(--digit-font);
   font-size: 44px;
   font-weight: 700;
-  color: #97bf26;
+  color: var(--text);
   transition: transform 0.15s ease-out;
   flex-shrink: 0;
 }
@@ -228,19 +251,20 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 14px;
+  padding: 4px 16px;
   line-height: 1;
-  background: #0a1555;
-  border-left: 1px solid rgba(151, 191, 38, 0.5);
-  border-right: 1px solid rgba(151, 191, 38, 0.5);
-  color: #97bf26;
-  font-size: 16px;
+  background: var(--bar);
+  border-left: 1px solid var(--edge);
+  border-right: 1px solid var(--edge);
+  color: var(--text);
+  font-family: var(--digit-font);
+  font-size: 18px;
   font-weight: 700;
 }
 
 .frames-divider {
-  color: rgba(151, 191, 38, 0.6);
-  font-size: 13px;
+  color: var(--dim);
+  font-size: 14px;
 }
 
 /* Briefly toggled by overlay.js whenever a score changes, for a small
@@ -252,19 +276,23 @@ body {
   display: inline-block;
 }
 
-/* Who is at the table: the active name plate lights up (lime gradient and
-   underline), the other one is dimmed. */
+/* Who is at the table: the active name plate gets a slightly lighter
+   surface and a lime underline, the other one's name is muted. */
 .name-plate {
   position: relative;
-  transition: filter 0.2s ease-out;
+  transition: background 0.2s ease-out;
 }
 
-.name-plate.inactive {
-  filter: saturate(0.4) brightness(0.7);
+.name-plate.inactive .player-name {
+  color: var(--muted);
+}
+
+.name-plate.inactive .flag {
+  opacity: 0.6;
 }
 
 .name-plate.active {
-  background: linear-gradient(135deg, #3a5ae0 0%, #1a2f95 100%);
+  background: var(--plate-active);
 }
 
 .name-plate.active::after {
@@ -273,45 +301,21 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 4px;
-  background: #97bf26;
-  box-shadow: 0 0 10px rgba(151, 191, 38, 0.9);
-}
-
-.name-plate.active .player-name {
-  text-shadow: 0 0 10px rgba(151, 191, 38, 0.7);
-}
-
-.turn-right.active::after,
-.turn-left.active::after {
-  border-top-width: 12px;
-  border-bottom-width: 12px;
-}
-
-.turn-right.active::after {
-  border-left-width: 15px;
-}
-
-.turn-left.active::after {
-  border-right-width: 15px;
-}
-
-.turn-indicator {
-  width: 20px;
+  height: 3px;
+  background: var(--accent);
 }
 
 /* Break of the player at the table, next to their name. */
 .break-chip {
   flex-shrink: 0;
-  padding: 2px 10px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #c6e65a 0%, #7fa01c 100%);
-  color: #0b2a05;
-  font-size: 13px;
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 1.5px;
-  line-height: 1.3;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+  line-height: 1.4;
 }
 
 .break-chip[hidden] {
@@ -320,9 +324,11 @@ body {
 
 .break-chip b {
   display: inline-block;
-  font-size: 20px;
+  font-family: var(--digit-font);
+  font-size: 19px;
+  letter-spacing: 0;
   margin-left: 4px;
-  vertical-align: -1px;
+  vertical-align: -2px;
   transition: transform 0.15s ease-out;
 }
 
@@ -334,7 +340,7 @@ body {
 .break-balls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -345,14 +351,14 @@ body {
 .ball-count {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .ball-count em {
   font-style: normal;
-  font-size: 15px;
-  font-weight: 700;
-  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .ball {
@@ -360,7 +366,7 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.45), inset 2px 2px 3px rgba(255, 255, 255, 0.55), 0 1px 3px rgba(0, 0, 0, 0.6);
+  box-shadow: inset -2px -3px 4px rgba(0, 0, 0, 0.45), inset 2px 2px 3px rgba(255, 255, 255, 0.45), 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .ball.red { background: #d91f1f; }
@@ -369,4 +375,4 @@ body {
 .ball.brown { background: #8a5226; }
 .ball.blue { background: #2f6fe0; }
 .ball.pink { background: #f27ab8; }
-.ball.black { background: #1a1a1a; }
+.ball.black { background: #2a2a2a; }

@@ -37,7 +37,7 @@ all fed from one shared match state, so they never disagree:
   and has no hotkey.
 
 **Presentation**
-- Club colours (SC Rozmarýn Brno: blue, navy, lime green) with a 3D look and the club logo.
+- Modern dark theme shared by all screens: deep navy, flat rounded cards, the club's lime green (SC Rozmarýn Brno) as an accent, and the club logo.
 - **Overlay:** full-width lower third with country flags (85 flags included), frame-score boxes, small frames-won pill,
   break chip with potted balls, match title and race label. The active player is clearly lit, long names shrink
   automatically, the page background is transparent.
@@ -65,8 +65,7 @@ all fed from one shared match state, so they never disagree:
   `match_state.json` next to `obs-snooker.py` within half a second of every change and restored when the script loads
   (after an OBS crash/restart or "Reload Scripts"). Start a fresh match with *Reset whole match*.
 - Works on macOS and Windows (screenshots and instructions are for Windows; development was done on macOS).
-- The web pages are served by a small built-in HTTP server on port `8710`; no internet connection is needed
-  (only the optional Oswald web font falls back to a system font without it).
+- The web pages are served by a small built-in HTTP server on port `8710`; no internet connection is needed.
 - "Reload Scripts" in OBS is enough after changing any file; no restart needed.
 
 ## Pages

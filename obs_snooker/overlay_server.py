@@ -47,6 +47,7 @@ _ROUTES = {
     "/control.css": "control.css",
     "/control.js": "control.js",
     "/logo.svg": "logo.svg",
+    "/logo-light.svg": "logo-light.svg",
     "/admin": "admin.html",
     "/admin.css": "admin.css",
     "/admin.js": "admin.js",

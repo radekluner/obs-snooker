@@ -26,10 +26,20 @@ from tkinter import messagebox, ttk
 
 from .player_database import PlayerDatabase, default_players_file_path
 
-_BG = "#05070a"
-_PANEL_BG = "#10151c"
-_GOLD = "#d4af37"
-_TEXT = "#f2f2f2"
+from tkinter import font as tkfont
+
+# Same modern dark theme as the scoreboard window (see scoreboard_window.py).
+_BG = "#0c1433"
+_PANEL_BG = "#080d26"
+_EDGE = "#273266"
+_BUTTON_BG = "#1c2654"
+_BUTTON_HOVER = "#26326a"
+_ACCENT = "#97bf26"
+_ACCENT_HOVER = "#a8d12f"
+_ACCENT_TEXT = "#0c1a02"
+_TEXT = "#ffffff"
+_MUTED_TEXT = "#8a95c2"
+_UI_FONTS = ("Avenir Next", "Segoe UI", "Helvetica Neue", "Helvetica", "Arial")
 
 
 class PlayerManagerWindow:
@@ -42,52 +52,80 @@ class PlayerManagerWindow:
         self.root = tk.Tk()
         self.root.title("Snooker scoreboard - manage players")
         self.root.configure(bg=_BG)
-        self.root.geometry("480x420")
+        self.root.geometry("520x480")
+
+        installed = set(tkfont.families(self.root))
+        family = next((f for f in _UI_FONTS if f in installed), "Helvetica")
+        self._font = tkfont.Font(family=family, size=13)
+        self._bold_font = tkfont.Font(family=family, size=13, weight="bold")
+        self._label_font = tkfont.Font(family=family, size=10, weight="bold")
 
         self._build_widgets()
         self._refresh_list()
 
+    def _button(self, parent: tk.Widget, text: str, command, primary: bool = False) -> tk.Label:
+        """A flat, colorable button.
+
+        Built from a ``Label`` because ``tk.Button`` on macOS (Aqua) ignores
+        background colors and always draws the native grey button.
+        """
+        bg, hover, fg = (_ACCENT, _ACCENT_HOVER, _ACCENT_TEXT) if primary else (_BUTTON_BG, _BUTTON_HOVER, _TEXT)
+        button = tk.Label(
+            parent, text=text, bg=bg, fg=fg, font=self._bold_font, padx=14, pady=7, cursor="hand2",
+            highlightthickness=1, highlightbackground=bg if primary else _EDGE,
+        )
+        button.bind("<Enter>", lambda _e: button.configure(bg=hover))
+        button.bind("<Leave>", lambda _e: button.configure(bg=bg))
+        button.bind("<Button-1>", lambda _e: command())
+        return button
+
+    def _entry(self, parent: tk.Widget, variable: tk.StringVar, **kwargs: object) -> tk.Entry:
+        return tk.Entry(
+            parent, textvariable=variable, bg=_PANEL_BG, fg=_TEXT, insertbackground=_TEXT, font=self._font,
+            relief=tk.FLAT, highlightthickness=1, highlightbackground=_EDGE, highlightcolor=_ACCENT, **kwargs,
+        )
+
     def _build_widgets(self) -> None:
-        container = tk.Frame(self.root, bg=_BG, padx=12, pady=12)
+        container = tk.Frame(self.root, bg=_BG, padx=16, pady=16)
         container.pack(fill=tk.BOTH, expand=True)
 
-        list_frame = tk.Frame(container, bg=_BG)
+        tk.Label(container, text="P L A Y E R S", bg=_BG, fg=_MUTED_TEXT, font=self._label_font).pack(anchor="w", pady=(0, 6))
+
+        list_frame = tk.Frame(container, bg=_PANEL_BG, highlightthickness=1, highlightbackground=_EDGE)
         list_frame.pack(fill=tk.BOTH, expand=True)
 
         self.listbox = tk.Listbox(
-            list_frame, bg=_PANEL_BG, fg=_TEXT, selectbackground=_GOLD, selectforeground=_BG,
-            activestyle="none", highlightthickness=0, borderwidth=0,
+            list_frame, bg=_PANEL_BG, fg=_TEXT, selectbackground=_ACCENT, selectforeground=_ACCENT_TEXT,
+            activestyle="none", highlightthickness=0, borderwidth=0, font=self._font,
         )
-        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(8, 0), pady=6)
         self.listbox.bind("<<ListboxSelect>>", self._on_select)
 
         scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.listbox.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.listbox.configure(yscrollcommand=scrollbar.set)
 
-        form_frame = tk.Frame(container, bg=_BG, pady=10)
+        form_frame = tk.Frame(container, bg=_BG, pady=14)
         form_frame.pack(fill=tk.X)
 
-        tk.Label(form_frame, text="Name:", bg=_BG, fg=_TEXT).grid(row=0, column=0, sticky="w")
+        tk.Label(form_frame, text="NAME", bg=_BG, fg=_MUTED_TEXT, font=self._label_font).grid(row=0, column=0, sticky="w")
         self.name_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.name_var).grid(row=0, column=1, sticky="we", padx=6)
+        self._entry(form_frame, self.name_var).grid(row=0, column=1, sticky="we", padx=(10, 0), pady=4, ipady=5)
 
-        tk.Label(form_frame, text="Country code:", bg=_BG, fg=_TEXT).grid(row=1, column=0, sticky="w")
+        tk.Label(form_frame, text="COUNTRY CODE", bg=_BG, fg=_MUTED_TEXT, font=self._label_font).grid(row=1, column=0, sticky="w")
         self.country_var = tk.StringVar()
-        tk.Entry(form_frame, textvariable=self.country_var, width=10).grid(
-            row=1, column=1, sticky="w", padx=6
-        )
+        self._entry(form_frame, self.country_var, width=10).grid(row=1, column=1, sticky="w", padx=(10, 0), pady=4, ipady=5)
 
         form_frame.columnconfigure(1, weight=1)
 
-        button_frame = tk.Frame(container, bg=_BG, pady=6)
+        button_frame = tk.Frame(container, bg=_BG)
         button_frame.pack(fill=tk.X)
 
-        tk.Button(button_frame, text="Add", command=self._on_add).pack(side=tk.LEFT, padx=4)
-        tk.Button(button_frame, text="Save changes", command=self._on_update).pack(side=tk.LEFT, padx=4)
-        tk.Button(button_frame, text="Delete", command=self._on_delete).pack(side=tk.LEFT, padx=4)
-        tk.Button(button_frame, text="Clear form", command=self._clear_form).pack(side=tk.LEFT, padx=4)
-        tk.Button(button_frame, text="Close", command=self.root.destroy).pack(side=tk.RIGHT, padx=4)
+        self._button(button_frame, "Add", self._on_add, primary=True).pack(side=tk.LEFT, padx=(0, 6))
+        self._button(button_frame, "Save changes", self._on_update).pack(side=tk.LEFT, padx=6)
+        self._button(button_frame, "Delete", self._on_delete).pack(side=tk.LEFT, padx=6)
+        self._button(button_frame, "Clear form", self._clear_form).pack(side=tk.LEFT, padx=6)
+        self._button(button_frame, "Close", self.root.destroy).pack(side=tk.RIGHT)
 
     def _refresh_list(self) -> None:
         self.listbox.delete(0, tk.END)

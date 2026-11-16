@@ -5,9 +5,10 @@ imported and tested completely outside of OBS (e.g. with plain ``python`` or
 ``pytest``), as long as Tkinter/Tcl-Tk is available on the system.
 
 The whole scoreboard is drawn on a single ``Canvas`` from a 1920x1080 design
-grid that is scaled to the window size. Tk has no native gradients/shadows,
-so gradients are generated as ``PhotoImage`` strips and "3D" text is drawn as
-several offset copies of the text (extrusion + drop shadow).
+grid that is scaled to the window size. Tk has no native gradients, shadows
+or rounded rectangles, so gradients are generated as ``PhotoImage`` strips,
+soft shadows/glows are faked with stacked rounded shapes, and rounded
+rectangles are composed from rectangles plus corner circles.
 """
 
 from __future__ import annotations
@@ -20,33 +21,36 @@ from tkinter import font as tkfont
 
 from .match_state import MatchState
 
-# Palette taken from the club website (snooker-morava.cz): navy, club blue,
-# green and lime accent, with a white header strip for the logo.
-_BG_TOP = "#1d2f9e"
-_BG_BOTTOM = "#060b36"
-_PANEL_TOP = "#2a47bd"
-_PANEL_BOTTOM = "#11206d"
-_PANEL_EDGE = "#4c68dc"
+# Modern dark theme: deep navy background, flat rounded cards with thin
+# borders, and the club's lime (snooker-morava.cz) used only as an accent for
+# whoever is at the table and the running break.
+_BG_TOP = "#0c1433"
+_BG_BOTTOM = "#050817"
+_HEADER_BG = "#0e1638"
+_HEADER_LINE = "#222c5c"
+_PANEL_FILL = "#121a3f"
+_PANEL_EDGE = "#243063"
+_SHADOW = "#03050f"
+_WELL_FILL = "#080d26"  # recessed boxes: frame score, frames won
+_WELL_EDGE = "#273266"
 _ACCENT = "#97bf26"  # club lime
-_ACCENT_DARK = "#5f7a14"
-_SCORE_STOPS = ((0.0, "#12a85a"), (0.5, "#007a3a"), (0.5001, "#006a31"), (1.0, "#003a1d"))
+_ACCENT_TEXT = "#0c1a02"
 _TEXT = "#ffffff"
-_TEXT_DEPTH = "#0a1148"
-_MUTED_TEXT = "#b4c0f0"
-_INACTIVE_PILL_TOP = "#3b57cc"
-_INACTIVE_PILL_BOTTOM = "#26399a"
-_FRAMES_PILL_STOPS = ((0.0, "#1a2b86"), (1.0, "#0a1348"))
+_MUTED_TEXT = "#8a95c2"
+_DIM_TEXT = "#4a5587"
+_PANEL_RADIUS = 32
 _BALL_ORDER = ("red", "yellow", "green", "brown", "blue", "pink", "black")
 _BALL_COLORS = {
     "red": "#d91f1f", "yellow": "#f2d21b", "green": "#1f9a44", "brown": "#8a5226",
-    "blue": "#2f6fe0", "pink": "#f27ab8", "black": "#1a1a1a",
+    "blue": "#2f6fe0", "pink": "#f27ab8", "black": "#2a2a2a",
 }
-_BALL_HIGHLIGHT = "#ffffff"
-_HEADER_TEXT = "#020939"
-_CLUB_BLUE = "#0396c4"
 _LOGO_WIDTHS = (140, 220, 300, 450, 600)
 _LOGO_DESIGN_W = 300
 _ASSETS_DIR = Path(__file__).parent / "assets"
+# First installed family wins: macOS fonts first, then their Windows
+# counterparts, then Tk's always-available fallback.
+_UI_FONTS = ("Avenir Next", "Segoe UI", "Helvetica Neue", "Helvetica", "Arial")
+_DIGIT_FONTS = ("DIN Alternate", "Bahnschrift", "Avenir Next", "Segoe UI", "Helvetica")
 
 _NAME_BASE_SIZE = 66
 # Character-count thresholds at which the player-name font shrinks, so long
@@ -77,24 +81,6 @@ def _name_font_size(name: str, base_size: int = _NAME_BASE_SIZE) -> int:
     return base_size
 
 
-def _rounded_rect_points(x1: float, y1: float, x2: float, y2: float, radius: float) -> list[float]:
-    """Returns the point list for a rounded-rectangle ``Canvas.create_polygon(..., smooth=True)`` call."""
-    return [
-        x1 + radius, y1,
-        x2 - radius, y1,
-        x2, y1,
-        x2, y1 + radius,
-        x2, y2 - radius,
-        x2, y2,
-        x2 - radius, y2,
-        x1 + radius, y2,
-        x1, y2,
-        x1, y2 - radius,
-        x1, y1 + radius,
-        x1, y1,
-    ]
-
-
 def _hex_to_rgb(color: str) -> tuple[int, int, int]:
     return int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
 
@@ -109,6 +95,16 @@ def _gradient_color(stops: tuple, t: float) -> str:
             r2, g2, b2 = _hex_to_rgb(c2)
             return "#%02x%02x%02x" % (round(r1 + (r2 - r1) * f), round(g1 + (g2 - g1) * f), round(b1 + (b2 - b1) * f))
     return stops[-1][1]
+
+
+def _mix(color: str, other: str, t: float) -> str:
+    """Blends ``color`` towards ``other`` by ``t`` (0 = color, 1 = other)."""
+    return _gradient_color(((0.0, color), (1.0, other)), t)
+
+
+def _spaced(text: str) -> str:
+    """Adds hair spaces between letters - Tk has no letter-spacing option for small caps labels."""
+    return " ".join(text)
 
 
 class ScoreboardWindow:
@@ -148,8 +144,11 @@ class ScoreboardWindow:
         self._images: dict = {}  # cache of generated gradient/logo images
         self._logo_images: dict[int, tk.PhotoImage] = {}
         self._fonts: dict = {}
-        self.player1_name_font = tkfont.Font(family="Helvetica", size=-_NAME_BASE_SIZE, weight="bold")
-        self.player2_name_font = tkfont.Font(family="Helvetica", size=-_NAME_BASE_SIZE, weight="bold")
+        installed = set(tkfont.families(self.root))
+        self._ui_family = next((f for f in _UI_FONTS if f in installed), "Helvetica")
+        self._digit_family = next((f for f in _DIGIT_FONTS if f in installed), "Helvetica")
+        self.player1_name_font = tkfont.Font(family=self._ui_family, size=-_NAME_BASE_SIZE, weight="bold")
+        self.player2_name_font = tkfont.Font(family=self._ui_family, size=-_NAME_BASE_SIZE, weight="bold")
         self._name_size = _NAME_BASE_SIZE
         self._last_key = None
 
@@ -240,11 +239,12 @@ class ScoreboardWindow:
 
     # ---- drawing helpers -------------------------------------------------
 
-    def _font(self, px: float, weight: str = "bold") -> tkfont.Font:
+    def _font(self, px: float, weight: str = "bold", digits: bool = False) -> tkfont.Font:
         size = max(6, round(px * self._scale))
-        key = (size, weight)
+        family = self._digit_family if digits else self._ui_family
+        key = (size, weight, family)
         if key not in self._fonts:
-            self._fonts[key] = tkfont.Font(family="Helvetica", size=-size, weight=weight)
+            self._fonts[key] = tkfont.Font(family=family, size=-size, weight=weight)
         return self._fonts[key]
 
     def _gradient(self, w: int, h: int, stops: tuple) -> tk.PhotoImage:
@@ -263,33 +263,41 @@ class ScoreboardWindow:
     def _y(self, value: float) -> float:
         return self._offset[1] + value * self._scale
 
-    def _grad_rect(self, x1: float, y1: float, x2: float, y2: float, stops: tuple, tags: str = "") -> None:
-        """Draws a vertical-gradient rectangle given in design coordinates."""
-        left, top, right, bottom = self._x(x1), self._y(y1), self._x(x2), self._y(y2)
-        image = self._gradient(round(right - left), round(bottom - top), stops)
-        self.canvas.create_image(left, top, image=image, anchor="nw", tags=tags)
+    def _fill_round(self, left: float, top: float, right: float, bottom: float, radius: float, color: str) -> None:
+        """Solid rounded rectangle in canvas pixels, built from two rectangles and four corner circles.
 
-    def _text3d(self, x: float, y: float, text: str, font: tkfont.Font, fill: str, depth: int = 4, shadow: str = _TEXT_DEPTH) -> None:
-        """Draws text with an extruded 3D look: stacked darker copies plus a soft drop shadow."""
-        step = max(1, round(self._scale * 1.5)) if depth else 0
-        cx, cy = self._x(x), self._y(y)
-        for i in range(depth + 3, depth, -1):
-            self.canvas.create_text(cx + i * step, cy + i * step, text=text, font=font, fill="#000000" if i > depth + 1 else "#02041a")
-        for i in range(depth, 0, -1):
-            self.canvas.create_text(cx + i * step, cy + i * step, text=text, font=font, fill=shadow)
-        self.canvas.create_text(cx, cy, text=text, font=font, fill=fill)
-
-    def _pill(self, x1: float, y1: float, x2: float, y2: float, top: str, bottom: str, outline: str = "") -> None:
-        """Rounded "glossy" pill: dark base, lighter top half for a highlight."""
+        A ``smooth=True`` polygon only gives tight, slightly wobbly corners in
+        Tk, so true circular corners are composed by hand instead.
+        """
         c = self.canvas
-        l, t, r, b = self._x(x1), self._y(y1), self._x(x2), self._y(y2)
-        radius = (b - t) / 2
-        c.create_polygon(_rounded_rect_points(l + 2, t + 3, r + 2, b + 3, radius), smooth=True, fill="#050a2c")
-        c.create_polygon(_rounded_rect_points(l, t, r, b, radius), smooth=True, fill=bottom, outline=outline)
-        inset = (b - t) * 0.08
-        c.create_polygon(
-            _rounded_rect_points(l + inset, t + inset, r - inset, (t + b) / 2, radius * 0.6), smooth=True, fill=top
-        )
+        r = max(0.0, min(radius, (right - left) / 2, (bottom - top) / 2))
+        c.create_rectangle(left + r, top, right - r, bottom, fill=color, outline="")
+        c.create_rectangle(left, top + r, right, bottom - r, fill=color, outline="")
+        for cx, cy in ((left + r, top + r), (right - r, top + r), (left + r, bottom - r), (right - r, bottom - r)):
+            c.create_oval(cx - r, cy - r, cx + r, cy + r, fill=color, outline="")
+
+    def _round_rect(self, x1: float, y1: float, x2: float, y2: float, radius: float, fill: str, outline: str = "", width: float = 0) -> None:
+        """Draws a rounded rectangle given in design coordinates, optionally with a border drawn inside its edge."""
+        left, top, right, bottom = self._x(x1), self._y(y1), self._x(x2), self._y(y2)
+        r = radius * self._scale
+        if outline and width:
+            w = max(1, round(width * self._scale))
+            self._fill_round(left, top, right, bottom, r, outline)
+            left, top, right, bottom, r = left + w, top + w, right - w, bottom - w, max(0, r - w)
+        self._fill_round(left, top, right, bottom, r, fill)
+
+    def _soft_shadow(self, x1: float, y1: float, x2: float, y2: float, radius: float, base: str, offset: float = 14) -> None:
+        """Fakes a blurred drop shadow with a few stacked, progressively darker rounded rectangles."""
+        for spread, t in ((14, 0.35), (8, 0.6), (3, 0.85)):
+            self._round_rect(
+                x1 - spread, y1 - spread + offset, x2 + spread, y2 + spread + offset,
+                radius + spread, _mix(base, _SHADOW, t),
+            )
+
+    def _glow(self, x1: float, y1: float, x2: float, y2: float, radius: float, base: str, color: str) -> None:
+        """Fakes an outer glow: rings fading from ``color`` out into the ``base`` background."""
+        for spread, t in ((22, 0.08), (15, 0.16), (9, 0.28), (4, 0.45)):
+            self._round_rect(x1 - spread, y1 - spread, x2 + spread, y2 + spread, radius + spread, _mix(base, color, t))
 
     # ---- rendering ---------------------------------------------------------
 
@@ -308,10 +316,15 @@ class ScoreboardWindow:
         width = min(_LOGO_WIDTHS, key=lambda w: abs(w - wanted))
         if width not in self._logo_images:
             try:
-                self._logo_images[width] = tk.PhotoImage(file=str(_ASSETS_DIR / f"logo_{width}.png"))
+                self._logo_images[width] = tk.PhotoImage(file=str(_ASSETS_DIR / f"logo_light_{width}.png"))
             except tk.TclError:
                 return None
         return self._logo_images[width]
+
+    def _bg_at(self, design_y: float) -> str:
+        """Background color behind a given design y (the background is a vertical gradient over the whole window)."""
+        height = max(1, self.canvas.winfo_height())
+        return _gradient_color(((0.0, _BG_TOP), (1.0, _BG_BOTTOM)), self._y(design_y) / height)
 
     def _render(self) -> None:
         self._render_job = None
@@ -328,18 +341,18 @@ class ScoreboardWindow:
         # Background and header (full window width, ignoring the letterbox offset).
         c.create_image(0, 0, image=self._gradient(width, height, ((0.0, _BG_TOP), (1.0, _BG_BOTTOM))), anchor="nw")
         header_bottom = self._y(_HEADER_H)
-        c.create_image(0, 0, image=self._gradient(width, round(header_bottom), ((0.0, "#ffffff"), (1.0, "#d5dcee"))), anchor="nw")
-        c.create_rectangle(0, header_bottom, width, header_bottom + 7 * sc, fill=_CLUB_BLUE, outline="")
-        c.create_rectangle(0, header_bottom + 7 * sc, width, header_bottom + 10 * sc, fill="#02587a", outline="")
+        c.create_rectangle(0, 0, width, header_bottom, fill=_HEADER_BG, outline="")
+        c.create_line(0, header_bottom, width, header_bottom, fill=_HEADER_LINE, width=max(1, round(2 * sc)))
         logo = self._logo_image()
         if logo is not None:
-            c.create_image(self._x(20), header_bottom / 2, image=logo, anchor="w")
+            c.create_image(self._x(40), header_bottom / 2, image=logo, anchor="w")
         title = self.match_title_var.get()
         if title:
-            title_font = self._font(40)
-            cx, cy = width / 2, header_bottom / 2
-            c.create_text(cx + 2, cy + 2, text=title, font=title_font, fill="#ffffff")
-            c.create_text(cx, cy, text=title, font=title_font, fill=_HEADER_TEXT)
+            c.create_text(width / 2, header_bottom / 2 - 4 * sc, text=title, font=self._font(42), fill=_TEXT)
+            c.create_line(
+                width / 2 - 50 * sc, header_bottom - 22 * sc, width / 2 + 50 * sc, header_bottom - 22 * sc,
+                fill=_ACCENT, width=max(2, round(4 * sc)), capstyle="round",
+            )
 
         names = (self.player1_name_var.get(), self.player2_name_var.get())
         frames = (self.player1_frames_var.get(), self.player2_frames_var.get())
@@ -349,89 +362,113 @@ class ScoreboardWindow:
         for index in range(2):
             self._render_panel(index, names[index], frames[index], scores[index], breaks[index], name_px)
 
+        # Thin separator between the two panels.
+        c.create_line(self._x(935), self._y(575), self._x(985), self._y(575), fill=_DIM_TEXT, width=max(2, round(6 * sc)), capstyle="round")
+
         race = self.race_label_var.get()
-        c.create_text(width / 2 + 1, self._y(1018) + 1, text=race, font=self._font(34, "normal"), fill="#000000")
-        c.create_text(width / 2, self._y(1018), text=race, font=self._font(34, "normal"), fill=_TEXT)
-        self.canvas.create_text(self._x(960), self._y(575), text="\u2013", font=self._font(110), fill=_ACCENT)
+        c.create_text(width / 2, self._y(1018), text=race, font=self._font(30, "normal"), fill=_MUTED_TEXT)
+
+    def _draw_ball(self, x: float, y: float, radius: float, color: str) -> None:
+        """Draws a shaded snooker ball (canvas pixels): dark rim, lighter core towards the top-left, specular dot."""
+        c = self.canvas
+        c.create_oval(x - radius, y - radius, x + radius, y + radius, fill=_mix(color, "#000000", 0.35), outline="")
+        for t, shrink, shift in ((0.0, 0.88, 0.06), (0.18, 0.62, 0.16), (0.32, 0.36, 0.26)):
+            r = radius * shrink
+            cx, cy = x - radius * shift, y - radius * shift
+            c.create_oval(cx - r, cy - r, cx + r, cy + r, fill=_mix(color, "#ffffff", t), outline="")
+        hr = radius * 0.16
+        hx, hy = x - radius * 0.38, y - radius * 0.40
+        c.create_oval(hx - hr, hy - hr, hx + hr, hy + hr, fill="#ffffff", outline="")
 
     def _draw_break_balls(self, cx: float, cy: float) -> None:
         """Draws the balls potted in the current break as shaded coloured balls with counts."""
         counts = [(name, self.break_balls.count(name)) for name in _BALL_ORDER if name in self.break_balls]
         if not counts:
             return
-        radius = 15 * self._scale
-        font = self._font(30)
-        item_w = (2 * radius + 8 * self._scale + 26 * self._scale)
-        gap = 22 * self._scale
-        total = len(counts) * item_w + (len(counts) - 1) * gap
+        sc = self._scale
+        radius = 16 * sc
+        font = self._font(26, "normal")
+        label_gap = 8 * sc
+        gap = 26 * sc
+        items = [(name, f"×{count}", font.measure(f"×{count}")) for name, count in counts]
+        total = sum(2 * radius + label_gap + w for _, _, w in items) + gap * (len(items) - 1)
         x = self._x(cx) - total / 2
         y = self._y(cy)
-        for name, count in counts:
-            color = _BALL_COLORS[name]
-            c = self.canvas
-            c.create_oval(x + 2, y - radius + 3, x + 2 * radius + 2, y + radius + 3, fill="#02041a", outline="")
-            c.create_oval(x, y - radius, x + 2 * radius, y + radius, fill=color, outline="#000000")
-            c.create_oval(x + radius * 0.35, y - radius * 0.7, x + radius * 0.85, y - radius * 0.25, fill=_BALL_HIGHLIGHT, outline="", stipple="gray50")
-            c.create_text(x + 2 * radius + 8 * self._scale, y, text=f"\u00d7{count}", anchor="w", font=font, fill=_TEXT)
-            x += item_w + gap
+        for name, label, label_w in items:
+            self._draw_ball(x + radius, y, radius, _BALL_COLORS[name])
+            self.canvas.create_text(x + 2 * radius + label_gap, y, text=label, anchor="w", font=font, fill=_MUTED_TEXT)
+            x += 2 * radius + label_gap + label_w + gap
 
     def _render_panel(self, index: int, name: str, frames: str, score: str, brk: str, name_px: int) -> None:
         c = self.canvas
+        sc = self._scale
         x1, x2 = _PANEL_X[index]
         y1, y2 = _PANEL_Y1, _PANEL_Y2
         cx = (x1 + x2) / 2
         active = self.current_player == index + 1
+        bg = self._bg_at((y1 + y2) / 2)
 
-        # Drop shadow, optional glow for whoever is on the table, then the gradient body.
-        c.create_rectangle(self._x(x1) + 10, self._y(y1) + 14, self._x(x2) + 10, self._y(y2) + 14, fill="#040826", outline="")
+        # Card: soft shadow, lime glow for whoever is at the table, flat body with a thin border.
+        self._soft_shadow(x1, y1, x2, y2, _PANEL_RADIUS, bg)
         if active:
-            for grow, color in ((14, "#3c4a12"), (8, "#6a8a1a")):
-                c.create_rectangle(self._x(x1 - grow), self._y(y1 - grow), self._x(x2 + grow), self._y(y2 + grow), fill=color, outline="")
-        self._grad_rect(x1, y1, x2, y2, ((0.0, _PANEL_TOP), (1.0, _PANEL_BOTTOM)))
-        c.create_rectangle(
-            self._x(x1), self._y(y1), self._x(x2), self._y(y2),
-            outline=_ACCENT if active else _PANEL_EDGE, width=max(2, round(5 * self._scale)),
+            self._glow(x1, y1, x2, y2, _PANEL_RADIUS, bg, _ACCENT)
+        self._round_rect(
+            x1, y1, x2, y2, _PANEL_RADIUS, _PANEL_FILL,
+            outline=_ACCENT if active else _PANEL_EDGE, width=3 if active else 2,
         )
-        # Bevel highlight along the top edge.
-        c.create_line(self._x(x1) + 4, self._y(y1) + 6, self._x(x2) - 4, self._y(y1) + 6, fill="#7d95ee" if not active else "#c4e063")
 
-        # "ON THE TABLE" turn pill.
-        top, bottom = (("#c6e65a", _ACCENT) if active else (_INACTIVE_PILL_TOP, _INACTIVE_PILL_BOTTOM))
-        self._pill(cx - 170, y1 + 30, cx + 170, y1 + 86, top, bottom)
-        label_font = self._font(24)
-        label_color = "#0b2a05" if active else _MUTED_TEXT
-        c.create_text(self._x(cx), self._y(y1 + 58), text="ON THE TABLE", font=label_font, fill=label_color)
+        # Turn pill: solid lime when at the table, a faint outline otherwise.
+        px1, px2, py1, py2 = cx - 150, cx + 150, y1 + 40, y1 + 92
+        if active:
+            self._round_rect(px1, py1, px2, py2, 26, _ACCENT)
+            label_color = _ACCENT_TEXT
+        else:
+            self._round_rect(px1, py1, px2, py2, 26, _PANEL_FILL, outline=_PANEL_EDGE, width=2)
+            label_color = _DIM_TEXT
+        c.create_text(self._x(cx), self._y((py1 + py2) / 2), text=_spaced("ON THE TABLE"), font=self._font(20), fill=label_color)
 
         # Player name, shrunk until it fits the panel.
         name_font = self.player1_name_font if index == 0 else self.player2_name_font
-        size = max(6, round(name_px * self._scale))
+        size = max(6, round(name_px * sc))
         name_font.configure(size=-size)
-        max_width = (x2 - x1 - 70) * self._scale
+        max_width = (x2 - x1 - 80) * sc
         while size > 8 and name_font.measure(name) > max_width:
             size -= 2
             name_font.configure(size=-size)
-        self._text3d(cx, y1 + 140, name, name_font, _TEXT, depth=4)
+        c.create_text(self._x(cx), self._y(y1 + 152) + 3 * sc, text=name, font=name_font, fill=_SHADOW)
+        c.create_text(self._x(cx), self._y(y1 + 152), text=name, font=name_font, fill=_TEXT)
 
-        # Frame score: glossy green box with extruded digits.
-        bx1, bx2, by1, by2 = cx - 230, cx + 230, y1 + 205, y1 + 495
-        c.create_rectangle(self._x(bx1) + 6, self._y(by1) + 8, self._x(bx2) + 6, self._y(by2) + 8, fill="#040826", outline="")
-        self._grad_rect(bx1, by1, bx2, by2, _SCORE_STOPS)
-        c.create_rectangle(self._x(bx1), self._y(by1), self._x(bx2), self._y(by2), outline="#02281a", width=max(2, round(4 * self._scale)))
-        c.create_line(self._x(bx1) + 3, self._y(by1) + 3, self._x(bx2) - 3, self._y(by1) + 3, fill="#6be0a0")
-        self._text3d((bx1 + bx2) / 2, (by1 + by2) / 2 - 4, score, self._font(220), _TEXT, depth=5, shadow="#012413")
-
-        # Current break.
-        self._text3d(cx, y1 + 540, brk, self._font(42), _ACCENT, depth=2, shadow="#26340a")
+        # Frame score: large white digits in a recessed rounded well.
+        bx1, bx2, by1, by2 = cx - 230, cx + 230, y1 + 215, y1 + 495
+        self._round_rect(bx1, by1, bx2, by2, 28, _WELL_FILL, outline=_WELL_EDGE, width=2)
+        c.create_text(self._x(cx), self._y((by1 + by2) / 2), text=score, font=self._font(210, digits=True), fill=_TEXT)
         if active:
-            self._draw_break_balls(cx, y1 + 598)
+            c.create_line(
+                self._x(cx - 60), self._y(by2 - 22), self._x(cx + 60), self._y(by2 - 22),
+                fill=_ACCENT, width=max(2, round(6 * sc)), capstyle="round",
+            )
 
-        # Frames won pill.
-        fx1, fx2, fy1, fy2 = cx - 120, cx + 120, y1 + 645, y1 + 750
-        c.create_rectangle(self._x(fx1) + 4, self._y(fy1) + 6, self._x(fx2) + 4, self._y(fy2) + 6, fill="#040826", outline="")
-        self._grad_rect(fx1, fy1, fx2, fy2, _FRAMES_PILL_STOPS)
-        c.create_rectangle(self._x(fx1), self._y(fy1), self._x(fx2), self._y(fy2), outline=_PANEL_EDGE, width=max(1, round(2 * self._scale)))
-        self._text3d(cx, fy1 + 40, frames, self._font(64), _ACCENT, depth=2, shadow="#26340a")
-        c.create_text(self._x(cx), self._y(fy1 + 90), text="FRAMES WON", font=self._font(18), fill=_TEXT)
+        # Current break: small spaced label + value (lime while it is running).
+        label, _, value = brk.partition("  ")
+        label_font, value_font = self._font(22), self._font(44, digits=True)
+        label_text = _spaced(label)
+        gap = 16 * sc
+        total = label_font.measure(label_text) + gap + value_font.measure(value)
+        bx = self._x(cx) - total / 2
+        by = self._y(y1 + 552)
+        c.create_text(bx, by, text=label_text, anchor="w", font=label_font, fill=_MUTED_TEXT)
+        c.create_text(
+            bx + label_font.measure(label_text) + gap, by, text=value, anchor="w", font=value_font,
+            fill=_ACCENT if active else _DIM_TEXT,
+        )
+        if active:
+            self._draw_break_balls(cx, y1 + 605)
+
+        # Frames won.
+        fx1, fx2, fy1, fy2 = cx - 130, cx + 130, y1 + 648, y1 + 748
+        self._round_rect(fx1, fy1, fx2, fy2, 22, _WELL_FILL, outline=_WELL_EDGE, width=2)
+        c.create_text(self._x(cx), self._y(fy1 + 40), text=frames, font=self._font(58, digits=True), fill=_TEXT)
+        c.create_text(self._x(cx), self._y(fy1 + 80), text=_spaced("FRAMES WON"), font=self._font(16), fill=_MUTED_TEXT)
 
     def _toggle_fullscreen(self, _event: object = None) -> None:
         self._fullscreen = not self._fullscreen
