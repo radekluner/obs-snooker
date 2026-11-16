@@ -45,13 +45,22 @@ body {
   width: 100%;
 }
 
-.match-title {
-  display: none;
+/* Everything floating above the bar, centered: the match status banner
+   (only when not "live") and the match title pill below it. */
+.top-stack {
   position: absolute;
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.match-title {
+  display: none;
   padding: 5px 20px;
   background: var(--bar);
   border: 1px solid var(--edge);
@@ -69,6 +78,67 @@ body {
 
 .match-title.visible {
   display: block;
+}
+
+/* Match status for viewers ("Match starts soon", "Interval", "Match
+   finished" + winner), set on the /admin page. */
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 26px;
+  background: var(--bar);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+.status-banner[hidden] {
+  display: none;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(151, 191, 38, 0.2);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.status-label {
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.status-note {
+  color: var(--muted);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.status-note:empty {
+  display: none;
+}
+
+/* Separator between label and note. */
+.status-note::before {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  margin-right: 14px;
+  vertical-align: -4px;
+  background: var(--edge);
+}
+
+.status-finished .status-dot {
+  animation: none;
 }
 
 .scoreboard {

@@ -13,6 +13,8 @@ const MATCH_INPUT_IDS = ["player1-id", "player2-id", "player1-name", "player2-na
 let snapshot = null;
 // True while the match setup form has unsaved edits; the background refresh must not overwrite them.
 let matchDirty = false;
+// Same for the status note: typed but not yet applied by clicking a status.
+let noteDirty = false;
 
 function setStatus(message, isError) {
   const el = $("status");
@@ -35,6 +37,9 @@ async function post(body, okMessage) {
     snapshot = data;
     if (body.action === "set_match") {
       matchDirty = false;
+    }
+    if (body.action === "set_status") {
+      noteDirty = false;
     }
     render(data, !matchDirty || body.action === "set_match");
     setStatus(okMessage || "Saved");
@@ -108,6 +113,13 @@ function render(data, force) {
   setIfIdle($("player2-name"), data.config.player2_custom_name, force);
   setIfIdle($("match-title-input"), data.match_title, force);
   setIfIdle($("frames-to-win"), data.frames_to_win, force);
+
+  document.querySelectorAll("[data-status]").forEach((button) => {
+    button.classList.toggle("selected", button.dataset.status === data.match_status);
+  });
+  if (!noteDirty) {
+    setIfIdle($("status-note"), data.status_note, force);
+  }
 
   $("corr-name1").textContent = data.player1_name;
   $("corr-name2").textContent = data.player2_name;
@@ -210,6 +222,21 @@ async function refresh() {
 MATCH_INPUT_IDS.forEach((id) => {
   $(id).addEventListener("input", () => { matchDirty = true; });
   $(id).addEventListener("change", () => { matchDirty = true; });
+});
+
+function applyStatus(status) {
+  post({ action: "set_status", status, note: $("status-note").value }, "Match status updated");
+}
+
+document.querySelectorAll("[data-status]").forEach((button) => {
+  button.addEventListener("click", () => applyStatus(button.dataset.status));
+});
+
+$("status-note").addEventListener("input", () => { noteDirty = true; });
+$("status-note").addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && snapshot) {
+    applyStatus(snapshot.match_status);
+  }
 });
 
 $("apply-match").addEventListener("click", () => {

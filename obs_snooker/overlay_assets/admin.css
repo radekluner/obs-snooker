@@ -121,6 +121,35 @@ select:focus {
   padding: 9px 14px;
 }
 
+.status-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.status-buttons button {
+  padding: 14px 8px;
+  font-size: 15px;
+}
+
+/* The status currently announced to viewers. */
+.status-buttons button.selected {
+  --face: var(--accent);
+  --edge: #b3d94a;
+  color: var(--accent-text);
+}
+
+.status-note {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+  .status-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .actions {
   margin-top: 6px;
   flex-wrap: wrap;

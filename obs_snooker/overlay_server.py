@@ -300,6 +300,8 @@ def _make_handler(
                     "current_break": state.current_break,
                     "break_balls": list(state.break_balls),
                     "match_title": state.match_title,
+                    "match_status": state.match_status,
+                    "status_note": state.status_note,
                     "foul": server.foul_public_state(),
                 }
             ).encode("utf-8")
@@ -459,6 +461,8 @@ class OverlayServer:
         return {
             "config": dict(self.config),
             "match_title": state.match_title,
+            "match_status": state.match_status,
+            "status_note": state.status_note,
             "frames_to_win": state.frames_to_win,
             "player1_name": state.player1_name,
             "player2_name": state.player2_name,
@@ -528,6 +532,11 @@ class OverlayServer:
         elif action == "set_frames":
             self._admin_player(payload)
             state.set_frames(payload["player"], self._admin_int(payload.get("value")))
+        elif action == "set_status":
+            try:
+                state.set_status(str(payload.get("status")), str(payload.get("note") or ""))
+            except ValueError as e:
+                raise _ActionError(str(e)) from None
         elif action == "set_break":
             state.clear_break()
             state.current_break = max(0, self._admin_int(payload.get("value")))

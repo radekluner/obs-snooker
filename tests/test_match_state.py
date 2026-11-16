@@ -1,6 +1,6 @@
 import pytest
 
-from obs_snooker.match_state import MatchState
+from obs_snooker.match_state import STATUS_NOTE_MAX_LENGTH, MatchState
 
 
 def test_default_state():
@@ -318,3 +318,32 @@ def test_ball_history_is_cleared_when_the_frame_ends():
     state.add_break_points(-1)
     assert state.player1_frame_score == 0
     assert state.ball_history == []
+
+
+def test_match_status_defaults_to_live_without_note():
+    state = MatchState()
+    assert state.match_status == "live"
+    assert state.status_note == ""
+
+
+def test_set_status_stores_status_and_trimmed_note():
+    state = MatchState()
+    state.set_status("interval", "  Back at 19:30  ")
+    assert (state.match_status, state.status_note) == ("interval", "Back at 19:30")
+    state.set_status("waiting", "x" * 200)
+    assert len(state.status_note) == STATUS_NOTE_MAX_LENGTH
+
+
+def test_unknown_status_is_rejected():
+    with pytest.raises(ValueError):
+        MatchState().set_status("paused")
+    with pytest.raises(ValueError):
+        MatchState(match_status="paused")
+
+
+def test_reset_match_keeps_the_announced_status():
+    state = MatchState(frames_to_win=3)
+    state.set_status("finished", "Thanks for watching")
+    state.player1_frames = 3
+    state.reset_match()
+    assert (state.match_status, state.status_note) == ("finished", "Thanks for watching")

@@ -29,6 +29,14 @@ BALL_VALUES: dict[str, int] = {
 }
 
 
+# What is happening in the match, as announced to viewers by the overlay:
+# "live" (being played - the default, nothing extra is shown), "waiting" (the
+# match has not started yet), "interval" (a break between frames/sessions) and
+# "finished". Set by the operator on the /admin page.
+MATCH_STATUSES: tuple[str, ...] = ("live", "waiting", "interval", "finished")
+STATUS_NOTE_MAX_LENGTH = 80
+
+
 def _other_player(player: int) -> int:
     return 2 if player == 1 else 1
 
@@ -57,6 +65,8 @@ class MatchState:
         match_title: str = "",
         current_break: int = 0,
         break_balls: list[str] | None = None,
+        match_status: str = "live",
+        status_note: str = "",
     ) -> None:
         self.player1_name = player1_name
         self.player2_name = player2_name
@@ -102,10 +112,17 @@ class MatchState:
         # "World Championship - Final". Left blank by default (hidden).
         self.match_title = match_title
 
+        # Match status announced in the overlay (one of MATCH_STATUSES) plus an
+        # optional short note shown with it, e.g. "Starts at 18:00".
+        self.match_status = match_status
+        self.status_note = status_note
+
         if self.frames_to_win < 1:
             raise ValueError(f"frames_to_win must be >= 1, got {self.frames_to_win!r}")
         if self.current_player not in (1, 2):
             raise ValueError(f"current_player must be 1 or 2, got {self.current_player!r}")
+        if self.match_status not in MATCH_STATUSES:
+            raise ValueError(f"match_status must be one of {MATCH_STATUSES}, got {self.match_status!r}")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, MatchState):
@@ -236,12 +253,24 @@ class MatchState:
 
         Player names, ``frames_to_win`` and ``match_title`` are left
         untouched, since those are match *configuration* rather than
-        in-progress state.
+        in-progress state. The match status is left alone too - it is always
+        announced explicitly by the operator (see :meth:`set_status`).
         """
         self.player1_frames = 0
         self.player2_frames = 0
         self.reset_frame_scores()
         self.current_player = 1
+
+    def set_status(self, status: str, note: str = "") -> None:
+        """Sets the match status shown to viewers (one of ``MATCH_STATUSES``) and its optional note.
+
+        The note is stripped and cut to ``STATUS_NOTE_MAX_LENGTH`` characters so
+        it always fits in the overlay banner.
+        """
+        if status not in MATCH_STATUSES:
+            raise ValueError(f"status must be one of {MATCH_STATUSES}, got {status!r}")
+        self.match_status = status
+        self.status_note = note.strip()[:STATUS_NOTE_MAX_LENGTH]
 
     def winner(self) -> int | None:
         """Returns the winning player number (1 or 2) once someone has reached ``frames_to_win``."""
